@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>81 İl Hava Durumu & Avatar (Final)</title>
+    <title>81 İl Canlı Hava Durumu ve Avatar</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -27,23 +27,22 @@
             height: 100vh;
         }
 
-        /* --- İNDİRİLECEK ALAN (GİZLİ STÜDYO) --- */
-        #profile-export-container {
-            position: fixed;
+        /* --- İNDİRİLECEK ALAN (Kapsayıcı) --- */
+        #export-container {
+            position: absolute;
             top: 0;
-            left: -9999px; /* Başlangıçta ekran dışında */
-            width: 1080px;
-            height: 1080px;
-            z-index: -9999;
-            overflow: hidden;
+            left: 0;
+            width: 100%;
+            height: 100%;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            background: #333;
+            overflow: hidden;
+            background-color: #333;
+            z-index: 0;
         }
 
-        /* --- HAVA EFEKTLERİ --- */
+        /* --- GÜÇLÜ HAVA EFEKTLERİ (ARKAPLAN) --- */
         .weather-bg-container {
             position: absolute;
             top: 0;
@@ -55,7 +54,7 @@
             transition: background 1s ease;
         }
 
-        /* Güneşli */
+        /* GÜNEŞLİ */
         .bg-sun { background: linear-gradient(to bottom right, #4facfe 0%, #00f2fe 100%); }
         .sun-orb {
             position: absolute; top: 5%; right: 5%; width: 200px; height: 200px;
@@ -67,30 +66,18 @@
             background: linear-gradient(90deg, rgba(255,255,255,0.15), transparent);
             transform-origin: left center; filter: blur(5px);
         }
-        .sun-particle {
-            position: absolute; background: rgba(255, 255, 255, 0.7); border-radius: 50%;
-            box-shadow: 0 0 5px rgba(255, 255, 200, 0.8); animation: rise linear infinite;
-        }
         @keyframes pulseSun { 0%, 100% { transform: scale(1); opacity: 0.9; } 50% { transform: scale(1.1); opacity: 1; } }
-        @keyframes rise {
-            from { transform: translateY(110vh) translateX(0); opacity: 0; }
-            20% { opacity: 0.8; } 80% { opacity: 0.8; }
-            to { transform: translateY(-10vh) translateX(50px); opacity: 0; }
-        }
 
-        /* Bulutlu */
+        /* BULUTLU */
         .bg-cloud { background: linear-gradient(to bottom, #757f9a, #d7dde8); }
         .big-cloud {
             position: absolute; background: #fff; border-radius: 100px; opacity: 0.9;
             box-shadow: 0 10px 30px rgba(0,0,0,0.1); filter: blur(2px);
             animation: floatCloud 60s linear infinite;
         }
-        .big-cloud::after, .big-cloud::before { content: ''; position: absolute; background: #fff; border-radius: 50%; }
-        .big-cloud::after { width: 40%; height: 80%; top: -40%; left: 20%; }
-        .big-cloud::before { width: 50%; height: 100%; top: -50%; left: 40%; }
         @keyframes floatCloud { from { transform: translateX(-300px); } to { transform: translateX(120vw); } }
 
-        /* Yağmurlu */
+        /* YAĞMURLU */
         .bg-rain { background: linear-gradient(to bottom, #203a43, #2c5364); }
         .heavy-rain {
             position: absolute; background: rgba(255,255,255,0.6); width: 2px; height: 40px;
@@ -98,7 +85,7 @@
         }
         @keyframes rainFall { to { transform: translateY(110vh); } }
 
-        /* Karlı */
+        /* KARLI */
         .bg-snow { background: linear-gradient(to bottom, #83a4d4, #b6fbff); }
         .big-snow {
             position: absolute; background: white; border-radius: 50%; opacity: 0.8;
@@ -106,12 +93,12 @@
         }
         @keyframes snowFall { to { transform: translateY(110vh) rotate(360deg); } }
 
-        /* Fırtına */
+        /* FIRTINA */
         .bg-storm { background: linear-gradient(to bottom, #232526, #414345); }
         .flash { position: absolute; inset: 0; background: white; opacity: 0; animation: thunder 6s infinite; }
         @keyframes thunder { 92% { opacity: 0; } 93% { opacity: 0.6; } 94% { opacity: 0; } }
 
-        /* --- KART TASARIMI --- */
+        /* --- WEB KARTI --- */
         .weather-card {
             position: relative; z-index: 10; width: min(90vw, 700px);
             background: rgba(255, 255, 255, 0.25); backdrop-filter: blur(16px);
@@ -122,18 +109,74 @@
             font-weight: 900; color: #fff; line-height: 1.1;
             text-shadow: 0 4px 15px rgba(0,0,0,0.5);
         }
-        .weather-temp { text-shadow: 0 4px 10px rgba(0,0,0,0.5); }
 
-        /* --- İNDİRME KARTI ÖZEL --- */
+        /* --- PROFİL KARTI (İNDİRİLECEK ALAN - SABİT PİKSEL) --- */
+        #profile-export-container {
+            position: fixed; top: 0; left: -9999px; /* Ekran dışı */
+            width: 1080px; height: 1080px; /* Başlangıç */
+            z-index: -9999;
+            overflow: hidden;
+            background: #fff; /* Fallback */
+            display: block; 
+        }
+        
         .export-overlay {
             position: absolute; inset: 0; background: rgba(0,0,0,0.2); z-index: 1; pointer-events: none;
         }
-        .export-content {
-            z-index: 10; width: 100%; height: 100%; display: flex; flex-direction: column;
-            align-items: center; justify-content: space-between; padding: 100px;
+        
+        /* Kesin Konumlu Öğeler */
+        .export-header {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            text-align: center;
+            z-index: 20;
+        }
+        
+        .export-weather-card {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 20;
+            /* Daha kompakt ve dengeli boyutlar */
+            width: 700px;
+            height: 220px;
+            display: flex;
+            align-items: center;
+            justify-content: center; /* İÇERİĞİ ORTALA */
+            gap: 40px;
+            background: rgba(255, 255, 255, 0.15); /* Hafif beyaz */
+            backdrop-filter: blur(0px); /* Html2Canvas sorunu için kapalı */
+            border-radius: 50px;
+            border: 4px solid rgba(255,255,255,0.5);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.4);
         }
 
-        /* --- UI BİLEŞENLERİ --- */
+        .export-avatar {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 30;
+            width: 550px;
+            height: 550px;
+            border-radius: 50%;
+            border: 15px solid rgba(255,255,255,0.8);
+            overflow: hidden;
+            background: white;
+            box-shadow: 0 40px 100px rgba(0,0,0,0.7);
+        }
+
+        .export-date {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            text-align: center;
+            z-index: 20;
+        }
+
+        /* Avatar Modal */
         .glass-modal {
             background: rgba(255, 255, 255, 0.95); border-radius: 24px;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
@@ -142,17 +185,20 @@
             background-color: #f3f4f6; border: 2px solid #e5e7eb; transition: all 0.2s;
         }
         .custom-select:focus { border-color: #3b82f6; background-color: #fff; }
-        
+
+        /* Kontroller */
         .search-container {
             position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%);
             z-index: 50; width: min(90vw, 600px);
         }
         .glass-bar {
             background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(10px);
-            border-radius: 9999px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); transition: transform 0.2s;
+            border-radius: 9999px; box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            transition: transform 0.2s;
         }
         .glass-bar:active { transform: scale(0.95); }
 
+        /* Favoriler */
         .favorites-sidebar {
             position: absolute; top: 2rem; left: 2rem; bottom: 2rem; width: 280px;
             background: rgba(0, 0, 0, 0.3); backdrop-filter: blur(15px);
@@ -160,13 +206,13 @@
             z-index: 40; padding: 1.5rem; display: flex; flex-direction: column;
         }
         @media (max-width: 768px) { .favorites-sidebar { display: none; } }
-        
         .fav-item {
             display: flex; align-items: center; justify-content: space-between; padding: 0.75rem;
             background: rgba(255, 255, 255, 0.1); border-radius: 12px; margin-bottom: 0.5rem;
             cursor: pointer; transition: all 0.2s; color: white;
         }
         .fav-item:hover { background: rgba(255, 255, 255, 0.2); }
+
     </style>
 </head>
 <body>
@@ -203,7 +249,6 @@
             return <i data-lucide={iconName} width={size} height={size} className={className}></i>;
         };
 
-        // --- ARKA PLAN EFEKTLERİ ---
         const BackgroundEffect = ({ type, isDay }) => {
             const elements = useMemo(() => {
                 if (type === 'rain') {
@@ -226,10 +271,11 @@
                             <div className="sun-ray" style={{transform:'rotate(45deg)'}}></div>
                             <div className="sun-ray" style={{transform:'rotate(90deg)'}}></div>
                             <div className="sun-ray" style={{transform:'rotate(135deg)'}}></div>
-                            {[...Array(20)].map((_, i) => <div key={`sp-${i}`} className="sun-particle" style={{left:`${Math.random()*100}%`, width:`${3+Math.random()*5}px`, height:`${3+Math.random()*5}px`, animationDuration:`${10+Math.random()*15}s`, animationDelay:`-${Math.random()*15}s`}}></div>)}
                         </>
                     );
-                } else if (type === 'storm') return <div className="flash"></div>;
+                } else if (type === 'storm') {
+                    return <div className="flash"></div>;
+                }
                 return null;
             }, [type, isDay]);
 
@@ -242,7 +288,6 @@
             return <div className={`weather-bg-container ${bgClass}`}>{elements}</div>;
         };
 
-        // --- AVATAR OLUŞTURUCU ---
         const AvatarCreator = ({ onClose, onGenerate }) => {
             const [traits, setTraits] = useState({
                 gender: "Woman", skinTone: "Light", hairColor: "Brown", hairStyle: "Long Wavy", eyeColor: "Brown",
@@ -292,7 +337,6 @@
             );
         };
 
-        // --- FAVORİ ŞEHİR ---
         const FavoriteCityItem = ({ city, onClick, onRemove }) => {
             const [data, setData] = useState(null);
             useEffect(() => {
@@ -319,7 +363,6 @@
             );
         };
 
-        // --- ANA UYGULAMA ---
         const App = () => {
             const [selectedCity, setSelectedCity] = useState("Eskişehir");
             const [weather, setWeather] = useState(null);
@@ -327,6 +370,7 @@
             const [avatarLoading, setAvatarLoading] = useState(false);
             const [showModal, setShowModal] = useState(false);
             const [savedCities, setSavedCities] = useState([]);
+            const [isFavOpen, setIsFavOpen] = useState(false);
             const cardRef = useRef(null);
 
             useEffect(() => {
@@ -357,47 +401,78 @@
 
             const handleCityChange = (e) => { setSelectedCity(e.target.value); fetchWeather(e.target.value); };
             const refresh = () => fetchWeather(selectedCity);
-            const saveCity = () => { if (!savedCities.includes(selectedCity)) { const n = [...savedCities, selectedCity]; setSavedCities(n); localStorage.setItem('savedCities', JSON.stringify(n)); } };
+            const saveCity = () => { 
+                if (!savedCities.includes(selectedCity)) { 
+                    const n = [...savedCities, selectedCity]; setSavedCities(n); localStorage.setItem('savedCities', JSON.stringify(n)); 
+                    setIsFavOpen(true);
+                } 
+            };
             const removeCity = (c) => { const n = savedCities.filter(i => i !== c); setSavedCities(n); localStorage.setItem('savedCities', JSON.stringify(n)); };
 
-            const download = () => {
+            const download = (type) => {
                 const target = document.getElementById('profile-export-container');
                 if (!target) return;
 
-                // --- GARANTİ ÇÖZÜM: GEÇİCİ OLARAK GÖRÜNÜR ALANA TAŞI ---
-                target.style.left = "0px";
+                const width = 1080;
+                const height = 1920;
+                
+                // Konteyner boyutunu ve görünürlüğünü ayarla
+                target.style.width = `${width}px`;
+                target.style.height = `${height}px`;
+                target.style.left = "0px"; // Ekrana getir (arkaya)
                 target.style.zIndex = "-9999"; 
+
+                // PIXEL PERFECT SABİT KONUMLAR (Hikaye Formatı İçin)
+                const title = target.querySelector('.export-header');
+                const card = target.querySelector('.export-weather-card');
+                const avatar = target.querySelector('.export-avatar');
+                const date = target.querySelector('.export-date');
+
+                // DİKEY (HİKAYE) DÜZENİ
+                title.style.top = "200px";
+                
+                // Kart Ortada
+                card.style.top = "700px"; 
+                card.style.transform = "translateX(-50%)";
+                
+                // Avatar Daha Yukarıda
+                avatar.style.top = "auto";
+                avatar.style.bottom = "400px"; // Tarihten daha yukarı
+                
+                // Tarih En Altta
+                date.style.bottom = "150px";
+                date.style.top = "auto";
 
                 html2canvas(target, {
                     scale: 1, 
                     useCORS: true,
                     backgroundColor: "#333", 
-                    width: 1080,
-                    height: 1080,
+                    width: width,
+                    height: height,
                     scrollX: 0, scrollY: 0
                 }).then(c => {
-                    target.style.left = "-9999px"; 
-                    const l = document.createElement('a'); l.download = `${selectedCity}_Profil.png`; l.href = c.toDataURL(); l.click();
+                    target.style.left = "-9999px"; // Geri sakla
+                    const l = document.createElement('a'); 
+                    l.download = `${selectedCity}_Hikaye.png`; 
+                    l.href = c.toDataURL(); 
+                    l.click();
                 }).catch(() => target.style.left = "-9999px");
             };
 
             const dateStr = new Date().toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
             const wInfo = weather ? getWeatherInfo(weather.code) : {t:"", i:"cloud", type:"cloud"};
 
-            const getTitleClass = (city) => {
-                if (!city) return "text-5xl";
-                if (city.length > 12) return "text-4xl md:text-5xl"; 
-                return "text-6xl md:text-8xl"; 
-            };
-
             return (
                 <>
                     <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
                         {weather && <div className="absolute inset-0 z-0"><BackgroundEffect type={wInfo.type} isDay={weather.isDay} /></div>}
                         
-                        {savedCities.length > 0 && (
+                        {savedCities.length > 0 && isFavOpen && (
                             <div className="favorites-sidebar custom-scrollbar overflow-y-auto">
-                                <h3 className="text-white font-bold mb-3 flex gap-2"><i data-lucide="star" className="fill-yellow-400 text-yellow-400"></i> Favorilerim</h3>
+                                <div className="flex justify-between items-center mb-3">
+                                    <h3 className="text-white font-bold flex gap-2"><i data-lucide="star" className="fill-yellow-400 text-yellow-400"></i> Favorilerim</h3>
+                                    <button onClick={() => setIsFavOpen(false)} className="text-white/60 hover:text-white"><i data-lucide="x" width="20"></i></button>
+                                </div>
                                 <div className="space-y-2">{savedCities.map(c => <FavoriteCityItem key={c} city={c} onClick={() => {setSelectedCity(c); fetchWeather(c);}} onRemove={removeCity} />)}</div>
                             </div>
                         )}
@@ -412,7 +487,7 @@
                             )}
                             {weather ? (
                                 <div className="flex flex-col items-center z-10 w-full">
-                                    <h1 className={`city-title ${getTitleClass(weather.city)} mb-4 drop-shadow-lg`}>{weather.city}</h1>
+                                    <h1 className="city-title text-5xl md:text-7xl mb-4 drop-shadow-lg">{weather.city}</h1>
                                     <div className="flex items-center gap-4 bg-white/20 backdrop-blur-md px-8 py-4 rounded-3xl border border-white/40 shadow-2xl">
                                         <div className="text-white drop-shadow-md"><WeatherIcon iconName={wInfo.i} size={64} className="stroke-[2.5]" /></div>
                                         <div className="flex flex-col items-start"><span className="text-7xl font-black text-white drop-shadow-md weather-temp">{weather.temp}°</span><span className="text-xl font-bold text-white uppercase tracking-wide opacity-90">{wInfo.t}</span></div>
@@ -423,13 +498,16 @@
                         </div>
 
                         <div className="search-container flex items-center gap-3 w-[min(90vw,600px)] mt-8">
+                            {!isFavOpen && <button onClick={() => setIsFavOpen(true)} className="glass-bar p-4 text-white hover:bg-white hover:text-black tooltip" title="Listeyi Aç"><i data-lucide="list" width="24"></i></button>}
+                            
                             <div className="relative flex-grow group">
                                 <select value={selectedCity} onChange={handleCityChange} className="city-select w-full p-4 pl-6 pr-10 glass-bar text-gray-800 font-extrabold focus:outline-none cursor-pointer text-lg appearance-none">{TR_CITIES.map(c => <option key={c} value={c}>{c}</option>)}</select>
                             </div>
                             <button onClick={saveCity} className="glass-bar p-4 text-yellow-500 hover:bg-white tooltip" title="Favori Ekle"><i data-lucide="star" className="fill-yellow-500" width="24"></i></button>
                             <button onClick={()=>setShowModal(true)} className="glass-bar p-4 text-gray-700 hover:bg-white tooltip" title="Avatar"><i data-lucide="user-plus" width="24"></i></button>
                             <button onClick={refresh} className="glass-bar p-4 text-gray-700 hover:bg-white tooltip" title="Yenile"><i data-lucide="refresh-cw" width="24"></i></button>
-                            <button onClick={download} className="glass-bar p-4 text-gray-700 hover:bg-white tooltip" title="İndir"><i data-lucide="download" width="24"></i></button>
+                            
+                            <button onClick={()=>download('story')} className="glass-bar p-4 text-pink-600 hover:bg-white tooltip" title="İndir"><i data-lucide="download" width="24"></i></button>
                         </div>
                         {showModal && <AvatarCreator onClose={()=>setShowModal(false)} onGenerate={generateAvatar}/>}
                     </div>
@@ -437,25 +515,27 @@
                     <div id="profile-export-container">
                         {weather && <BackgroundEffect type={wInfo.type} isDay={weather.isDay} />}
                         <div className="export-overlay"></div>
-                        <div className="export-content relative z-20">
-                            <div className="flex flex-col items-center pt-12">
-                                <h1 className="text-8xl font-black text-white drop-shadow-[0_5px_15px_rgba(0,0,0,0.8)] text-center uppercase tracking-tighter mb-4" style={{ textShadow: '0 4px 20px rgba(0,0,0,0.9)' }}>{weather?.city}</h1>
-                                <span className="text-4xl font-bold text-white/90 uppercase tracking-[0.3em] drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)]">{dateStr}</span>
+                        
+                        <div className="export-header">
+                            <h1 className="text-8xl font-black text-white drop-shadow-[0_5px_15px_rgba(0,0,0,0.8)] text-center uppercase tracking-tighter mb-4" style={{ textShadow: '0 4px 20px rgba(0,0,0,0.9)' }}>{weather?.city}</h1>
+                        </div>
+
+                        <div className="export-weather-card">
+                            <div className="text-white scale-150 transform drop-shadow-lg"><WeatherIcon iconName={wInfo.i} size={80} className="stroke-[3]" /></div>
+                            <div className="flex flex-col items-start pl-4">
+                                <span className="text-9xl font-black text-white drop-shadow-[0_5px_15px_rgba(0,0,0,0.8)] leading-none">{weather?.temp}°</span>
+                                <span className="text-4xl font-bold text-white uppercase tracking-widest mt-2 drop-shadow-md">{wInfo.t}</span>
                             </div>
-                            <div className="flex items-center gap-8 bg-black/40 backdrop-blur-none px-12 py-8 rounded-[4rem] border-4 border-white/20 shadow-2xl">
-                                <div className="text-white scale-150 transform drop-shadow-lg"><WeatherIcon iconName={wInfo.i} size={80} className="stroke-[3]" /></div>
-                                <div className="flex flex-col items-start pl-4">
-                                    <span className="text-9xl font-black text-white drop-shadow-[0_5px_15px_rgba(0,0,0,0.8)] leading-none">{weather?.temp}°</span>
-                                    <span className="text-4xl font-bold text-white uppercase tracking-widest mt-2 drop-shadow-md">{wInfo.t}</span>
-                                </div>
+                        </div>
+
+                        {avatarUrl ? (
+                            <div className="export-avatar">
+                                <img src={avatarUrl} className="w-full h-full object-cover" crossOrigin="anonymous"/>
                             </div>
-                            <div className="relative pb-0 mb-[-50px]">
-                                {avatarUrl ? (
-                                    <div className="w-[500px] h-[500px] rounded-full border-[15px] border-white/30 shadow-[0_30px_80px_rgba(0,0,0,0.6)] overflow-hidden bg-white">
-                                        <img src={avatarUrl} className="w-full h-full object-cover" crossOrigin="anonymous"/>
-                                    </div>
-                                ) : <div className="w-[400px] h-[400px]"></div>}
-                            </div>
+                        ) : <div className="export-avatar bg-white/10"></div>}
+
+                        <div className="export-date">
+                            <span className="text-4xl font-bold text-white/90 uppercase tracking-[0.3em] drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)]">{dateStr}</span>
                         </div>
                     </div>
                 </>
