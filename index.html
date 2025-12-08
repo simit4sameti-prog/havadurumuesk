@@ -18,8 +18,8 @@
             font-family: 'Nunito', sans-serif;
             margin: 0;
             overflow: hidden;
-            background-color: #1a1a1a;
-            color: #fff;
+            background-color: #333;
+            color: #333;
         }
 
         #root {
@@ -68,7 +68,7 @@
         .weather-bg-container { width: 100%; height: 100%; overflow: hidden; position: relative; }
         
         /* Güneşli */
-        .bg-sun { background: linear-gradient(to bottom right, #2980b9, #6dd5fa, #ffffff); }
+        .bg-sun { background: linear-gradient(to bottom right, #4facfe 0%, #00f2fe 100%); }
         .sun-orb { position: absolute; top: 5%; right: 5%; width: 250px; height: 250px; background: radial-gradient(circle, #fdbb2d 0%, rgba(253, 187, 45, 0.4) 60%, transparent 70%); filter: blur(20px); animation: pulseSun 6s infinite ease-in-out; }
         .sun-ray { position: absolute; top: 50%; left: 50%; width: 200vw; height: 150px; background: linear-gradient(90deg, rgba(255,255,255,0.1), transparent); transform-origin: left center; filter: blur(8px); }
         @keyframes pulseSun { 0%, 100% { transform: scale(1); opacity: 0.9; } 50% { transform: scale(1.1); opacity: 1; } }
@@ -107,11 +107,14 @@
         .city-title { font-weight: 900; color: #fff; text-shadow: 0 4px 20px rgba(0,0,0,0.5); }
         
         .glass-bar {
-            background: rgba(255, 255, 255, 0.9);
-            color: #333;
+            background: rgba(255, 255, 255, 0.95);
+            color: #111;
             border-radius: 9999px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.25);
             transition: transform 0.1s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .glass-bar:active { transform: scale(0.95); }
         
@@ -133,7 +136,7 @@
         /* Hava Durumu Kartı - Ortada */
         .exp-card {
             position: absolute; 
-            top: 550px; /* Yukarı alındı */
+            top: 550px; 
             left: 50%; transform: translateX(-50%);
             width: 800px; padding: 40px;
             display: flex; align-items: center; justify-content: center; gap: 40px;
@@ -145,7 +148,7 @@
         /* Avatar - Aşağıda */
         .exp-avatar {
             position: absolute; 
-            bottom: 400px; /* Tarihin üstüne alındı */
+            bottom: 400px; 
             left: 50%; transform: translateX(-50%);
             width: 550px; height: 550px;
             border-radius: 50%; border: 15px solid white;
@@ -190,6 +193,12 @@
         }
         .fav-item:hover { background: rgba(255, 255, 255, 0.2); border-color: rgba(255,255,255,0.3); }
 
+        /* Kontroller */
+        .search-container {
+            position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%);
+            z-index: 50; width: min(90vw, 600px);
+            display: flex; gap: 0.75rem; align-items: center;
+        }
     </style>
 </head>
 <body>
@@ -198,16 +207,17 @@
     <script type="text/babel">
         const { useState, useEffect, useRef, useMemo } = React;
 
+        // ALFABETİK SIRALI ŞEHİR LİSTESİ
         const TR_CITIES = [
-            "Adana", "Adıyaman", "Afyonkarahisar", "Ağrı", "Amasya", "Ankara", "Antalya", "Artvin", "Aydın", "Balıkesir",
-            "Bilecik", "Bingöl", "Bitlis", "Bolu", "Burdur", "Bursa", "Çanakkale", "Çankırı", "Çorum", "Denizli",
-            "Diyarbakır", "Edirne", "Elazığ", "Erzincan", "Erzurum", "Eskişehir", "Gaziantep", "Giresun", "Gümüşhane", "Hakkari",
-            "Hatay", "Isparta", "Mersin", "İstanbul", "İzmir", "Kars", "Kastamonu", "Kayseri", "Kırklareli", "Kırşehir",
-            "Kocaeli", "Konya", "Kütahya", "Malatya", "Manisa", "Kahramanmaraş", "Mardin", "Muğla", "Muş", "Nevşehir",
-            "Niğde", "Ordu", "Rize", "Sakarya", "Samsun", "Siirt", "Sinop", "Sivas", "Tekirdağ", "Tokat",
-            "Trabzon", "Tunceli", "Şanlıurfa", "Uşak", "Van", "Yozgat", "Zonguldak", "Aksaray", "Bayburt", "Karaman",
-            "Kırıkkale", "Batman", "Şırnak", "Bartın", "Ardahan", "Iğdır", "Yalova", "Karabük", "Kilis", "Osmaniye", "Düzce"
-        ];
+            "Adana", "Adıyaman", "Afyonkarahisar", "Ağrı", "Aksaray", "Amasya", "Ankara", "Antalya", "Ardahan", "Artvin", "Aydın", 
+            "Balıkesir", "Bartın", "Batman", "Bayburt", "Bilecik", "Bingöl", "Bitlis", "Bolu", "Burdur", "Bursa", 
+            "Çanakkale", "Çankırı", "Çorum", "Denizli", "Diyarbakır", "Düzce", "Edirne", "Elazığ", "Erzincan", "Erzurum", "Eskişehir", 
+            "Gaziantep", "Giresun", "Gümüşhane", "Hakkari", "Hatay", "Iğdır", "Isparta", "İstanbul", "İzmir", 
+            "Kahramanmaraş", "Karabük", "Karaman", "Kars", "Kastamonu", "Kayseri", "Kırıkkale", "Kırklareli", "Kırşehir", "Kilis", "Kocaeli", "Konya", "Kütahya", 
+            "Malatya", "Manisa", "Mardin", "Mersin", "Muğla", "Muş", "Nevşehir", "Niğde", "Ordu", "Osmaniye", 
+            "Rize", "Sakarya", "Samsun", "Siirt", "Sinop", "Sivas", "Şanlıurfa", "Şırnak", 
+            "Tekirdağ", "Tokat", "Trabzon", "Tunceli", "Uşak", "Van", "Yalova", "Yozgat", "Zonguldak"
+        ].sort((a, b) => a.localeCompare(b, 'tr'));
 
         const getWeatherInfo = (code) => {
             const map = {
@@ -219,6 +229,14 @@
                 73: {t:"Yoğun Kar", i:"snowflake", type:"snow"}, 95: {t:"Fırtına", i:"cloud-lightning", type:"storm"}
             };
             return map[code] || {t:"Bilinmiyor", i:"cloud", type:"cloud"};
+        };
+
+        // YENİ GARANTİ GÖRÜNÜR İKON BİLEŞENİ
+        const UIInfoIcon = ({ name, size = 24, className="" }) => {
+            useEffect(() => {
+                if (window.lucide) window.lucide.createIcons();
+            });
+            return <i data-lucide={name} width={size} height={size} className={className}></i>;
         };
 
         const WeatherIcon = ({ iconName, size = 48, className = "" }) => {
@@ -310,7 +328,9 @@
             return (
                 <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
                     <div className="glass-modal w-full max-w-lg p-6 relative max-h-[90vh] overflow-y-auto">
-                        <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition-colors"><i data-lucide="x" width="28"></i></button>
+                        <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition-colors">
+                            <UIInfoIcon name="x" size={28} />
+                        </button>
                         <h2 className="text-2xl font-black text-gray-800 mb-4 text-center">Avatarını Tasarla</h2>
                         <div className="space-y-3">
                             <div className="grid grid-cols-2 gap-3">
@@ -365,7 +385,9 @@
                     <div className="flex items-center gap-2"><span className="text-white font-bold truncate max-w-[120px]">{city}</span></div>
                     <div className="flex items-center gap-2">
                         {data ? <><span className="text-yellow-400 font-bold">{data.temp}°</span><div className="text-white/80 scale-75"><WeatherIcon iconName={data.icon} size={20}/></div></> : <div className="w-3 h-3 border-2 border-white rounded-full animate-spin"></div>}
-                        <button onClick={(e) => { e.stopPropagation(); onRemove(city); }} className="text-white/40 hover:text-red-400 p-1 transition-colors opacity-0 group-hover:opacity-100"><i data-lucide="trash-2" width="16"></i></button>
+                        <button onClick={(e) => { e.stopPropagation(); onRemove(city); }} className="text-white/40 hover:text-red-400 p-1 transition-colors opacity-0 group-hover:opacity-100">
+                            <UIInfoIcon name="trash-2" size={16} />
+                        </button>
                     </div>
                 </div>
             );
@@ -447,7 +469,7 @@
                     height: 1920,
                     scrollX: 0, scrollY: 0
                 }).then(c => {
-                    target.style.left = "-9999px"; // Sakla
+                    target.style.left = "-9999px"; // Geri sakla
                     const l = document.createElement('a'); l.download = `${selectedCity}_Hikaye.png`; l.href = c.toDataURL(); l.click();
                 }).catch(() => target.style.left = "-9999px");
             };
@@ -472,8 +494,12 @@
                         {/* Favoriler Paneli */}
                         <div className={`favorites-sidebar custom-scrollbar overflow-y-auto ${isFavOpen ? 'favorites-open' : 'favorites-closed'}`}>
                             <div className="flex justify-between items-center mb-4">
-                                <h3 className="text-white font-bold flex gap-2 text-lg"><i data-lucide="star" className="fill-yellow-400 text-yellow-400"></i> Favoriler</h3>
-                                <button onClick={() => setIsFavOpen(false)} className="bg-white/10 p-1 rounded-full hover:bg-white/20 transition"><i data-lucide="x" width="20"></i></button>
+                                <h3 className="text-white font-bold flex gap-2 text-lg">
+                                    <UIInfoIcon name="star" size={24} className="fill-yellow-400 text-yellow-400" /> Favoriler
+                                </h3>
+                                <button onClick={() => setIsFavOpen(false)} className="bg-white/10 p-1 rounded-full hover:bg-white/20 transition">
+                                    <UIInfoIcon name="x" size={20} />
+                                </button>
                             </div>
                             <div className="space-y-2">
                                 {savedCities.length === 0 && <div className="text-white/50 text-sm italic">Henüz favori yok.</div>}
@@ -502,21 +528,30 @@
                         </div>
 
                         <div className="search-container flex items-center gap-3 w-[min(90vw,600px)] mt-8">
-                            {!isFavOpen && <button onClick={() => setIsFavOpen(true)} className="glass-bar p-4 text-white hover:bg-white hover:text-black tooltip" title="Favoriler"><i data-lucide="list" width="24"></i></button>}
+                            {!isFavOpen && <button onClick={() => setIsFavOpen(true)} className="glass-bar p-4 text-white hover:bg-white hover:text-black tooltip" title="Listeyi Aç">
+                                <UIInfoIcon name="list" size={24} />
+                            </button>}
                             
                             <div className="relative flex-grow group">
                                 <select value={selectedCity} onChange={handleCityChange} className="city-select w-full p-4 pl-6 pr-10 glass-bar text-gray-800 font-extrabold focus:outline-none cursor-pointer text-lg appearance-none">{TR_CITIES.map(c => <option key={c} value={c}>{c}</option>)}</select>
                             </div>
-                            <button onClick={saveCity} className="glass-bar p-4 text-yellow-500 hover:bg-white tooltip" title="Favori Ekle"><i data-lucide="star" className="fill-yellow-500" width="24"></i></button>
-                            <button onClick={()=>setShowModal(true)} className="glass-bar p-4 text-gray-700 hover:bg-white tooltip" title="Avatar"><i data-lucide="user-plus" width="24"></i></button>
-                            <button onClick={refresh} className="glass-bar p-4 text-gray-700 hover:bg-white tooltip" title="Yenile"><i data-lucide="refresh-cw" width="24"></i></button>
+                            <button onClick={saveCity} className="glass-bar p-4 text-yellow-500 hover:bg-white tooltip" title="Favori Ekle">
+                                <UIInfoIcon name="star" size={24} className="fill-yellow-500" />
+                            </button>
+                            <button onClick={()=>setShowModal(true)} className="glass-bar p-4 text-gray-700 hover:bg-white tooltip" title="Avatar">
+                                <UIInfoIcon name="user-plus" size={24} />
+                            </button>
+                            <button onClick={refresh} className="glass-bar p-4 text-gray-700 hover:bg-white tooltip" title="Yenile">
+                                <UIInfoIcon name="refresh-cw" size={24} />
+                            </button>
                             
-                            <button onClick={download} className="glass-bar p-4 text-pink-600 hover:bg-white tooltip" title="İndir"><i data-lucide="download" width="24"></i></button>
+                            <button onClick={download} className="glass-bar p-4 text-pink-600 hover:bg-white tooltip" title="İndir">
+                                <UIInfoIcon name="download" size={24} />
+                            </button>
                         </div>
                         {showModal && <AvatarCreator onClose={()=>setShowModal(false)} onGenerate={generateAvatar}/>}
                     </div>
 
-                    {/* --- GİZLİ İNDİRME ALANI (SABİT PİKSEL) --- */}
                     <div id="profile-export-container">
                         {weather && <BackgroundEffect type={wInfo.type} isDay={weather.isDay} />}
                         <div className="export-content-wrapper">
