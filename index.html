@@ -51,17 +51,17 @@
             justify-content: center;
         }
 
-        /* --- KATMAN 3: İNDİRME ALANI (GİZLİ) --- */
+        /* --- KATMAN 3: İNDİRME ALANI (GİZLİ & SABİT) --- */
         #profile-export-container {
             position: fixed;
             top: 0;
-            left: -9999px;
+            left: -9999px; /* Ekran Dışı */
             width: 1080px;
             height: 1920px;
             z-index: -9999;
             background-color: #222;
             overflow: hidden;
-            display: flex;
+            display: block; /* Flex değil, Absolute konumlandırma için Block */
         }
 
         /* HAVA EFEKTİ STİLLERİ */
@@ -101,6 +101,7 @@
             padding: 2rem;
             text-align: center;
             box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
         }
         
         .city-title { font-weight: 900; color: #fff; text-shadow: 0 4px 20px rgba(0,0,0,0.5); }
@@ -114,40 +115,81 @@
         }
         .glass-bar:active { transform: scale(0.95); }
         
-        /* İNDİRME ALANI STİLLERİ (SABİT POZİSYONLAR) */
+        /* İNDİRME ALANI STİLLERİ (SABİT POZİSYONLAR - Asla Kaymaz) */
         .export-content-wrapper {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
             z-index: 10;
         }
         
+        /* Başlık - Yukarıda */
         .exp-header {
-            position: absolute; top: 200px; left: 0; width: 100%; text-align: center; /* Biraz daha yukarı */
+            position: absolute; 
+            top: 150px; 
+            left: 0; width: 100%; 
+            text-align: center;
         }
+        
+        /* Hava Durumu Kartı - Ortada */
         .exp-card {
-            position: absolute; top: 550px; /* YUKARI TAŞINDI (650 -> 550) */
+            position: absolute; 
+            top: 500px; 
             left: 50%; transform: translateX(-50%);
-            width: 800px; padding: 50px;
-            display: flex; align-items: center; justify-content: center; gap: 50px;
-            background: rgba(0,0,0,0.4); border-radius: 60px; border: 4px solid rgba(255,255,255,0.3);
+            width: 800px; padding: 40px;
+            display: flex; align-items: center; justify-content: center; gap: 40px;
+            background: rgba(0,0,0,0.5); border-radius: 50px; border: 4px solid rgba(255,255,255,0.3);
             color: white;
             box-shadow: 0 30px 80px rgba(0,0,0,0.4);
         }
+
+        /* Avatar - Aşağıda */
         .exp-avatar {
-            position: absolute; bottom: 400px; /* AŞAĞIDAN YUKARI ALINDI (350 -> 400) */
+            position: absolute; 
+            bottom: 350px; 
             left: 50%; transform: translateX(-50%);
-            width: 500px; height: 500px;
+            width: 550px; height: 550px;
             border-radius: 50%; border: 15px solid white;
             overflow: hidden; background: white;
             box-shadow: 0 40px 100px rgba(0,0,0,0.6);
         }
+
+        /* Tarih - En Altta */
         .exp-date {
-            position: absolute; bottom: 150px; left: 0; width: 100%; text-align: center;
+            position: absolute; bottom: 120px; left: 0; width: 100%; text-align: center;
         }
 
         /* Modal */
         .glass-modal { background: rgba(255,255,255,0.95); border-radius: 24px; color: #333; }
         select { background: #f3f4f6; border: 1px solid #ddd; }
+
+        /* Favoriler Paneli */
+        .favorites-sidebar {
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+            bottom: 8rem; /* Alt kısımdan boşluk */
+            width: 280px;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            z-index: 50;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        }
+        .favorites-closed { transform: translateX(-120%); }
+        .favorites-open { transform: translateX(0); }
+
+        .fav-item {
+            display: flex; align-items: center; justify-content: space-between; padding: 0.75rem;
+            background: rgba(255, 255, 255, 0.1); border-radius: 12px; margin-bottom: 0.5rem;
+            cursor: pointer; transition: all 0.2s; color: white; border: 1px solid transparent;
+        }
+        .fav-item:hover { background: rgba(255, 255, 255, 0.2); border-color: rgba(255,255,255,0.3); }
+
     </style>
 </head>
 <body>
@@ -221,10 +263,11 @@
                     return (
                         <>
                             <div className="sun-orb"></div>
-                            <div className="sun-ray" style={{transform: 'rotate(0deg)'}}></div>
-                            <div className="sun-ray" style={{transform: 'rotate(45deg)'}}></div>
-                            <div className="sun-ray" style={{transform: 'rotate(90deg)'}}></div>
-                            <div className="sun-ray" style={{transform: 'rotate(135deg)'}}></div>
+                            <div className="sun-ray-container">
+                                {[...Array(8)].map((_, i) => (
+                                    <div key={i} className="sun-ray" style={{ transform: `rotate(${i * 45}deg)` }}></div>
+                                ))}
+                            </div>
                         </>
                     );
                 } else if (type === 'storm') {
@@ -236,7 +279,7 @@
             let bgClass = '';
             if (type === 'rain') bgClass = 'bg-rain';
             else if (type === 'snow') bgClass = 'bg-snow';
-            else if (type === 'sun') bgClass = isDay ? 'bg-sun' : 'bg-storm';
+            else if (type === 'sun') bgClass = isDay ? 'bg-sun' : 'bg-storm'; // Gece güneşi storm gibi
             else if (type === 'cloud') bgClass = 'bg-cloud';
             else if (type === 'storm') bgClass = 'bg-storm';
             else bgClass = 'bg-cloud';
@@ -248,36 +291,81 @@
             );
         };
 
-        // --- AVATAR MODALI ---
+        // --- FAVORİ ŞEHİR ÖĞESİ ---
+        const FavoriteCityItem = ({ city, onClick, onRemove }) => {
+            const [data, setData] = useState(null);
+            useEffect(() => {
+                let mounted = true;
+                const load = async () => {
+                    try {
+                        const geo = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${city}&count=1&language=tr&format=json`).then(r=>r.json());
+                        if(!geo.results || !mounted) return;
+                        const w = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${geo.results[0].latitude}&longitude=${geo.results[0].longitude}&current=temperature_2m,weather_code&timezone=auto`).then(r=>r.json());
+                        if(mounted) setData({ temp: Math.round(w.current.temperature_2m), icon: getWeatherInfo(w.current.weather_code).i });
+                    } catch(e) {}
+                };
+                load(); return () => mounted = false;
+            }, [city]);
+
+            return (
+                <div onClick={onClick} className="fav-item group">
+                    <div className="flex items-center gap-2"><span className="text-white font-bold truncate max-w-[120px]">{city}</span></div>
+                    <div className="flex items-center gap-2">
+                        {data ? <><span className="text-yellow-400 font-bold">{data.temp}°</span><div className="text-white/80 scale-75"><WeatherIcon iconName={data.icon} size={20}/></div></> : <div className="w-3 h-3 border-2 border-white rounded-full animate-spin"></div>}
+                        <button onClick={(e) => { e.stopPropagation(); onRemove(city); }} className="text-white/40 hover:text-red-400 p-1 transition-colors opacity-0 group-hover:opacity-100"><i data-lucide="trash-2" width="16"></i></button>
+                    </div>
+                </div>
+            );
+        };
+
+        // --- AVATAR MODALI (GELİŞMİŞ) ---
         const AvatarCreator = ({ onClose, onGenerate }) => {
             const [traits, setTraits] = useState({
-                gender: "Woman", skinTone: "Light", hairColor: "Brown", hairStyle: "Long Wavy",
-                clothingStyle: "Casual", mood: "Happy", glasses: "None", beard: "None"
+                gender: "Woman", age: "Young Adult", skinTone: "Light", hairColor: "Brown", hairStyle: "Long Wavy",
+                eyeColor: "Brown", clothingStyle: "Casual", mood: "Happy", glasses: "None", beard: "None", headwear: "None"
             });
+
+            const renderSelect = (label, key, opts) => (
+                <div>
+                    <label className="block text-xs font-bold text-gray-500 mb-1">{label}</label>
+                    <select className="custom-select w-full p-2.5 rounded-xl text-sm" value={traits[key]} onChange={e=>setTraits({...traits, [key]:e.target.value})}>
+                        {opts.map(o=><option key={o} value={o}>{o}</option>)}
+                    </select>
+                </div>
+            );
 
             return (
                 <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
-                    <div className="glass-modal w-full max-w-lg p-8 relative max-h-[90vh] overflow-y-auto">
-                        <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition-colors">
-                            <i data-lucide="x" width="28"></i>
-                        </button>
-                        <h2 className="text-3xl font-black text-gray-800 mb-6 text-center">Avatar Stüdyosu</h2>
-                        <div className="space-y-4">
-                            <div className="grid grid-cols-2 gap-4">
-                                <div><label className="block text-xs font-bold text-gray-500 mb-1">Cinsiyet</label><select className="custom-select w-full p-3 rounded-xl" value={traits.gender} onChange={e=>setTraits({...traits, gender:e.target.value})}><option value="Woman">Kadın</option><option value="Man">Erkek</option><option value="Girl">Kız</option><option value="Boy">Erkek</option></select></div>
-                                <div><label className="block text-xs font-bold text-gray-500 mb-1">Ten Rengi</label><select className="custom-select w-full p-3 rounded-xl" value={traits.skinTone} onChange={e=>setTraits({...traits, skinTone:e.target.value})}><option value="Light">Açık</option><option value="Tan">Buğday</option><option value="Dark">Esmer</option><option value="Pale">Soluk</option></select></div>
+                    <div className="glass-modal w-full max-w-lg p-6 relative max-h-[90vh] overflow-y-auto">
+                        <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition-colors"><i data-lucide="x" width="28"></i></button>
+                        <h2 className="text-2xl font-black text-gray-800 mb-4 text-center">Avatarını Tasarla</h2>
+                        <div className="space-y-3">
+                            <div className="grid grid-cols-2 gap-3">
+                                {renderSelect("Cinsiyet", "gender", ["Woman", "Man", "Girl", "Boy"])}
+                                {renderSelect("Yaş Grubu", "age", ["Child", "Teen", "Young Adult", "Adult", "Elderly"])}
                             </div>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div><label className="block text-xs font-bold text-gray-500 mb-1">Saç Stili</label><select className="custom-select w-full p-3 rounded-xl" value={traits.hairStyle} onChange={e=>setTraits({...traits, hairStyle:e.target.value})}><option value="Long Wavy">Uzun Dalgalı</option><option value="Short Cut">Kısa</option><option value="Ponytail">At Kuyruğu</option><option value="Bald">Kel</option><option value="Hijab">Başörtü</option><option value="Curly">Kıvırcık</option></select></div>
-                                <div><label className="block text-xs font-bold text-gray-500 mb-1">Saç Rengi</label><select className="custom-select w-full p-3 rounded-xl" value={traits.hairColor} onChange={e=>setTraits({...traits, hairColor:e.target.value})}><option value="Brown">Kahve</option><option value="Black">Siyah</option><option value="Blonde">Sarı</option><option value="Red">Kızıl</option><option value="Grey">Gri</option><option value="Pink">Pembe</option></select></div>
+                            <div className="grid grid-cols-2 gap-3">
+                                {renderSelect("Ten Rengi", "skinTone", ["Light", "Tan", "Dark", "Pale"])}
+                                {renderSelect("Saç Rengi", "hairColor", ["Brown", "Black", "Blonde", "Red", "Grey", "Pink"])}
                             </div>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div><label className="block text-xs font-bold text-gray-500 mb-1">Giyim Tarzı</label><select className="custom-select w-full p-3 rounded-xl" value={traits.clothingStyle} onChange={e=>setTraits({...traits, clothingStyle:e.target.value})}><option value="Casual">Günlük</option><option value="Sporty">Spor</option><option value="Formal">Resmi</option><option value="Streetwear">Sokak Modası</option><option value="Traditional">Geleneksel</option></select></div>
-                                <div><label className="block text-xs font-bold text-gray-500 mb-1">Ruh Hali</label><select className="custom-select w-full p-3 rounded-xl" value={traits.mood} onChange={e=>setTraits({...traits, mood:e.target.value})}><option value="Happy">Mutlu</option><option value="Cool">Havalı</option><option value="Serious">Ciddi</option><option value="Surprised">Şaşkın</option><option value="Sleepy">Uykulu</option></select></div>
+                            <div className="grid grid-cols-2 gap-3">
+                                {renderSelect("Saç Stili", "hairStyle", ["Long Wavy", "Short Cut", "Ponytail", "Bald", "Hijab", "Curly"])}
+                                {renderSelect("Göz Rengi", "eyeColor", ["Brown", "Blue", "Green", "Hazel", "Black"])}
                             </div>
-                            <div><label className="block text-xs font-bold text-gray-500 mb-1">Gözlük</label><select className="custom-select w-full p-3 rounded-xl" value={traits.glasses} onChange={e=>setTraits({...traits, glasses:e.target.value})}><option value="None">Yok</option><option value="Sunglasses">Güneş Gözlüğü</option><option value="Reading Glasses">Numaralı</option></select></div>
-                            {(traits.gender === "Man" || traits.gender === "Boy") && <div><label className="block text-xs font-bold text-gray-500 mb-1">Sakal</label><select className="custom-select w-full p-3 rounded-xl" value={traits.beard} onChange={e=>setTraits({...traits, beard:e.target.value})}><option value="None">Yok</option><option value="Full Beard">Tam Sakal</option><option value="Goatee">Keçi Sakalı</option><option value="Stubble">Kirli Sakal</option></select></div>}
-                            <button onClick={()=>{onGenerate(traits); onClose();}} className="w-full py-4 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-bold rounded-xl shadow-lg mt-6 transform hover:scale-[1.02] transition-all">✨ Avatarı Oluştur</button>
+                            <div className="grid grid-cols-2 gap-3">
+                                {renderSelect("Giyim Tarzı", "clothingStyle", ["Casual", "Sporty", "Formal", "Streetwear", "Traditional"])}
+                                {renderSelect("Ruh Hali", "mood", ["Happy", "Cool", "Serious", "Surprised", "Sleepy"])}
+                            </div>
+                            <div className="grid grid-cols-2 gap-3">
+                                {renderSelect("Gözlük", "glasses", ["None", "Sunglasses", "Reading Glasses"])}
+                                {renderSelect("Aksesuar/Şapka", "headwear", ["None", "Cap", "Beanie", "Hat"])}
+                            </div>
+                            {(traits.gender === "Man" || traits.gender === "Boy") && renderSelect("Sakal/Bıyık", "beard", ["None", "Full Beard", "Goatee", "Stubble"])}
+                            
+                            <div className="flex gap-2 mt-4">
+                                <button onClick={onClose} className="flex-1 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold rounded-xl transition-all">İptal</button>
+                                <button onClick={()=>{onGenerate(traits); onClose();}} className="flex-[2] py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg transition-all">✨ Oluştur</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -292,7 +380,16 @@
             const [avatarUrl, setAvatarUrl] = useState(null);
             const [avatarLoading, setAvatarLoading] = useState(false);
             const [showModal, setShowModal] = useState(false);
+            const [savedCities, setSavedCities] = useState([]);
+            const [isFavOpen, setIsFavOpen] = useState(false);
             const cardRef = useRef(null);
+
+            useEffect(() => {
+                const savedAvatar = localStorage.getItem('userAvatar');
+                if (savedAvatar) setAvatarUrl(savedAvatar);
+                setSavedCities(JSON.parse(localStorage.getItem('savedCities') || '[]'));
+                fetchWeather(selectedCity);
+            }, []);
 
             const fetchWeather = async (cityName) => {
                 setLoading(true);
@@ -311,36 +408,48 @@
 
             const generateAvatar = (traits) => {
                 setAvatarLoading(true);
-                let outfit = "casual"; if(weather?.temp < 10) outfit = "winter clothes";
-                let extra = ""; if(traits.glasses!=="None") extra+=`, ${traits.glasses}`; if(traits.beard!=="None") extra+=`, ${traits.beard}`;
-                const prompt = `cute 3d character portrait, ${traits.gender}, ${traits.skinTone} skin, ${traits.hairStyle} ${traits.hairColor} hair, ${traits.eyeColor} eyes, ${traits.mood} expression, wearing ${outfit}${extra}, solid color background, 3d render, clay style, high quality --no text`;
+                let outfit = traits.clothingStyle;
+                if(weather?.temp < 10) outfit += ", winter clothes, scarf";
+                
+                let extra = "";
+                if(traits.glasses!=="None") extra+=`, ${traits.glasses}`;
+                if(traits.beard!=="None") extra+=`, ${traits.beard}`;
+                if(traits.headwear!=="None") extra+=`, wearing ${traits.headwear}`;
+                
+                const prompt = `cute 3d character portrait, ${traits.age} ${traits.gender}, ${traits.skinTone} skin, ${traits.hairStyle} ${traits.hairColor} hair, ${traits.eyeColor} eyes, ${traits.mood} expression, wearing ${outfit}${extra}, solid color background, 3d render, clay style, high quality, pixar style --no text`;
+                
                 const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=512&height=512&model=flux&nologo=true&seed=${Math.floor(Math.random()*1000)}`;
-                setAvatarUrl(url); setAvatarLoading(false);
+                setAvatarUrl(url); localStorage.setItem('userAvatar', url); setAvatarLoading(false);
             };
-
-            useEffect(() => { fetchWeather(selectedCity); }, []);
 
             const handleCityChange = (e) => { setSelectedCity(e.target.value); fetchWeather(e.target.value); };
             const refresh = () => fetchWeather(selectedCity);
             
+            const saveCity = () => { 
+                if (!savedCities.includes(selectedCity)) { 
+                    const n = [...savedCities, selectedCity]; setSavedCities(n); localStorage.setItem('savedCities', JSON.stringify(n)); 
+                    setIsFavOpen(true);
+                } 
+            };
+            const removeCity = (c) => { const n = savedCities.filter(i => i !== c); setSavedCities(n); localStorage.setItem('savedCities', JSON.stringify(n)); };
+
             const download = () => {
                 const target = document.getElementById('profile-export-container');
                 if (!target) return;
                 
-                // Görünür yap (arkaya at)
-                target.style.left = "0px";
+                // --- KESİN ÇÖZÜM: Görünmez alana al, render et ---
+                target.style.left = "0px"; 
+                target.style.zIndex = "-9999"; // En arkada kalsın
                 
                 html2canvas(target, {
                     scale: 1, 
                     useCORS: true,
-                    backgroundColor: "#222", // Arka planı garantiye al
+                    backgroundColor: "#111", // Güvenli arka plan
                     width: 1080,
                     height: 1920,
-                    windowWidth: 1080,
-                    windowHeight: 1920,
                     scrollX: 0, scrollY: 0
                 }).then(c => {
-                    target.style.left = "-9999px"; // Geri sakla
+                    target.style.left = "-9999px"; // Sakla
                     const l = document.createElement('a'); l.download = `${selectedCity}_Hikaye.png`; l.href = c.toDataURL(); l.click();
                 }).catch(() => target.style.left = "-9999px");
             };
@@ -351,73 +460,85 @@
             return (
                 <>
                     {/* WEB ARAYÜZÜ */}
-                    <div className="content-layer">
-                        <div className="bg-layer">
-                            {weather && <BackgroundEffect type={wInfo.type} isDay={weather.isDay} />}
+                    <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
+                        {weather && <div className="absolute inset-0 z-0"><BackgroundEffect type={wInfo.type} isDay={weather.isDay} /></div>}
+                        
+                        {/* Favoriler Paneli */}
+                        <div className={`favorites-sidebar custom-scrollbar overflow-y-auto ${isFavOpen ? 'favorites-open' : 'favorites-closed'}`}>
+                            <div className="flex justify-between items-center mb-4">
+                                <h3 className="text-white font-bold flex gap-2 text-lg"><i data-lucide="star" className="fill-yellow-400 text-yellow-400"></i> Favoriler</h3>
+                                <button onClick={() => setIsFavOpen(false)} className="bg-white/10 p-1 rounded-full hover:bg-white/20 transition"><i data-lucide="x" width="20"></i></button>
+                            </div>
+                            <div className="space-y-2">
+                                {savedCities.length === 0 && <div className="text-white/50 text-sm italic">Henüz favori yok.</div>}
+                                {savedCities.map(c => <FavoriteCityItem key={c} city={c} onClick={() => {setSelectedCity(c); fetchWeather(c);}} onRemove={removeCity} />)}
+                            </div>
                         </div>
 
-                        <div ref={cardRef} className="weather-card animate-fade-in">
+                        {/* Ana Kart */}
+                        <div ref={cardRef} className="weather-card animate-fade-in flex flex-col items-center justify-center">
                             {avatarUrl && (
-                                <div className="absolute -top-12 left-6 w-24 h-24 rounded-full border-4 border-white/50 shadow-2xl overflow-hidden bg-white z-30 hover:scale-105 transition-transform">
-                                    <img src={avatarUrl} className={`w-full h-full object-cover ${avatarLoading?'opacity-50':'opacity-100'}`} onLoad={()=>setAvatarLoading(false)} crossOrigin="anonymous"/>
+                                <div className="absolute bottom-6 left-6 w-24 h-24 rounded-full border-4 border-white/40 shadow-2xl overflow-hidden bg-white z-30 hover:scale-105 transition-transform group">
+                                    <img src={avatarUrl} className={`w-full h-full object-cover ${avatarLoading?'opacity-50':'opacity-100'}`} crossOrigin="anonymous"/>
                                     {avatarLoading && <div className="absolute inset-0 flex items-center justify-center"><div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div></div>}
+                                    <button onClick={()=>{setAvatarUrl(null); localStorage.removeItem('userAvatar');}} className="absolute top-0 right-0 bg-red-500 text-white p-1 rounded-full text-xs opacity-0 group-hover:opacity-100 transition-opacity">X</button>
                                 </div>
                             )}
-                            
-                            <div className="mt-8">
-                                {weather ? (
-                                    <div className="flex flex-col items-center">
-                                        <h1 className="city-title text-5xl md:text-7xl mb-4 drop-shadow-lg">{weather.city}</h1>
-                                        <div className="flex flex-col items-center justify-center gap-2 text-white">
-                                            <div className="scale-150 mb-2 drop-shadow-lg"><WeatherIcon iconName={wInfo.i} size={48}/></div>
-                                            <span className="text-7xl font-black drop-shadow-md">{weather.temp}°</span>
-                                            <span className="text-xl uppercase tracking-widest opacity-90 font-bold">{wInfo.t}</span>
-                                        </div>
-                                        <div className="mt-6 text-sm font-bold uppercase tracking-[0.3em] text-white/90 drop-shadow-sm">{dateStr}</div>
+                            {weather ? (
+                                <div className="flex flex-col items-center z-10 w-full">
+                                    <h1 className="city-title text-5xl md:text-7xl mb-4 drop-shadow-lg">{weather.city}</h1>
+                                    <div className="flex items-center gap-4 bg-white/20 backdrop-blur-md px-8 py-4 rounded-3xl border border-white/40 shadow-2xl">
+                                        <div className="text-white drop-shadow-md"><WeatherIcon iconName={wInfo.i} size={64} className="stroke-[2.5]" /></div>
+                                        <div className="flex flex-col items-start"><span className="text-7xl font-black text-white drop-shadow-md weather-temp">{weather.temp}°</span><span className="text-xl font-bold text-white uppercase tracking-wide opacity-90">{wInfo.t}</span></div>
                                     </div>
-                                ) : <div className="text-white animate-pulse font-bold text-xl">Veriler Yükleniyor...</div>}
-                            </div>
+                                    <span className="text-white/90 font-bold tracking-widest text-lg uppercase mt-6 drop-shadow-md">{dateStr}</span>
+                                </div>
+                            ) : <div className="text-white animate-pulse text-2xl font-bold flex flex-col items-center gap-2"><div className="w-10 h-10 border-4 border-white border-t-transparent rounded-full animate-spin"></div>Veriler Alınıyor...</div>}
                         </div>
 
-                        <div className="absolute bottom-8 w-full flex justify-center gap-3 px-4">
-                            <div className="relative">
-                                <select value={selectedCity} onChange={handleCityChange} className="glass-bar p-4 pr-10 pl-6 appearance-none font-bold text-lg cursor-pointer focus:outline-none text-gray-800">
-                                    {TR_CITIES.map(c => <option key={c} value={c}>{c}</option>)}
-                                </select>
+                        {/* Kontroller */}
+                        <div className="search-container flex items-center gap-3 w-[min(90vw,600px)] mt-8">
+                            {!isFavOpen && <button onClick={() => setIsFavOpen(true)} className="glass-bar p-4 text-white hover:bg-white hover:text-black tooltip" title="Favoriler"><i data-lucide="list" width="24"></i></button>}
+                            
+                            <div className="relative flex-grow group">
+                                <select value={selectedCity} onChange={handleCityChange} className="city-select w-full p-4 pl-6 pr-10 glass-bar text-gray-800 font-extrabold focus:outline-none cursor-pointer text-lg appearance-none">{TR_CITIES.map(c => <option key={c} value={c}>{c}</option>)}</select>
                             </div>
-                            <button onClick={()=>setShowModal(true)} className="glass-bar p-4 hover:bg-white text-blue-600 tooltip" title="Avatar Tasarla"><i data-lucide="user" width="24"></i></button>
-                            <button onClick={refresh} className="glass-bar p-4 hover:bg-white text-green-600 tooltip" title="Yenile"><i data-lucide="refresh-cw" width="24"></i></button>
-                            <button onClick={download} className="glass-bar p-4 hover:bg-white text-pink-600 tooltip" title="İndir"><i data-lucide="download" width="24"></i></button>
+                            <button onClick={saveCity} className="glass-bar p-4 text-yellow-500 hover:bg-white tooltip" title="Favori Ekle"><i data-lucide="star" className="fill-yellow-500" width="24"></i></button>
+                            <button onClick={()=>setShowModal(true)} className="glass-bar p-4 text-gray-700 hover:bg-white tooltip" title="Avatar"><i data-lucide="user-plus" width="24"></i></button>
+                            <button onClick={refresh} className="glass-bar p-4 text-gray-700 hover:bg-white tooltip" title="Yenile"><i data-lucide="refresh-cw" width="24"></i></button>
+                            
+                            <button onClick={download} className="glass-bar p-4 text-pink-600 hover:bg-white tooltip" title="İndir"><i data-lucide="download" width="24"></i></button>
                         </div>
+                        {showModal && <AvatarCreator onClose={()=>setShowModal(false)} onGenerate={generateAvatar}/>}
                     </div>
-                    
-                    {showModal && <AvatarCreator onClose={()=>setShowModal(false)} onGenerate={generateAvatar}/>}
 
-                    {/* --- İNDİRME ALANI (SABİT) --- */}
+                    {/* --- GİZLİ İNDİRME ALANI (SABİT PİKSEL) --- */}
                     <div id="profile-export-container">
                         {weather && <BackgroundEffect type={wInfo.type} isDay={weather.isDay} />}
                         <div className="export-content-wrapper">
                             
+                            {/* 1. BAŞLIK */}
                             <div className="exp-header">
                                 <h1 className="text-8xl font-black text-white drop-shadow-lg uppercase tracking-tighter" style={{textShadow:'0 5px 30px rgba(0,0,0,0.6)'}}>{weather?.city}</h1>
                             </div>
 
+                            {/* 2. HAVA DURUMU KARTI */}
                             <div className="exp-card">
-                                <div className="flex flex-col items-center justify-center text-white">
-                                    <div className="scale-[2.5] mb-6 drop-shadow-xl"><WeatherIcon iconName={wInfo.i} size={64}/></div>
-                                    <div className="flex items-center gap-4">
-                                        <span className="text-[140px] font-black leading-none drop-shadow-xl">{weather?.temp}°</span>
-                                        <span className="text-4xl font-bold uppercase tracking-widest border-l-4 border-white/30 pl-6">{wInfo.t}</span>
-                                    </div>
+                                <div className="text-white scale-[2.5] drop-shadow-xl"><WeatherIcon iconName={wInfo.i} size={64}/></div>
+                                <div className="flex flex-col items-center justify-center">
+                                    <span className="text-[140px] font-black leading-none drop-shadow-xl text-white">{weather?.temp}°</span>
+                                    <span className="text-4xl font-bold text-white uppercase tracking-widest mt-2 bg-white/20 px-6 py-2 rounded-full">{wInfo.t}</span>
                                 </div>
                             </div>
 
-                            {avatarUrl && (
+                            {/* 3. AVATAR */}
+                            {avatarUrl ? (
                                 <div className="exp-avatar">
                                     <img src={avatarUrl} className="w-full h-full object-cover" crossOrigin="anonymous"/>
                                 </div>
-                            )}
+                            ) : <div className="exp-avatar bg-white/10 flex items-center justify-center"><span className="text-white text-4xl opacity-50">Avatar Yok</span></div>}
 
+                            {/* 4. TARİH */}
                             <div className="exp-date">
                                 <span className="text-5xl font-bold text-white/90 uppercase tracking-[0.4em] drop-shadow-md">{dateStr}</span>
                             </div>
