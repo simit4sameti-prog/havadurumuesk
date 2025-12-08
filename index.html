@@ -167,7 +167,7 @@
         .glass-modal { background: rgba(255,255,255,0.95); border-radius: 24px; color: #333; }
         select { background: #f3f4f6; border: 1px solid #ddd; }
 
-        /* Favoriler Paneli */
+        /* Favoriler Paneli (SOL) */
         .favorites-sidebar {
             position: absolute;
             top: 2rem;
@@ -185,6 +185,30 @@
             transition: transform 0.3s ease;
             box-shadow: 0 10px 40px rgba(0,0,0,0.5);
         }
+        
+        /* 7 GÜNLÜK TAHMİN PANELİ (SAĞ) */
+        .forecast-sidebar {
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+            bottom: 8rem; 
+            width: 280px;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            z-index: 50;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        }
+
+        @media (max-width: 1024px) { 
+            .favorites-sidebar, .forecast-sidebar { display: none; } /* Mobilde yan panelleri gizle */
+        }
+        
         .favorites-closed { transform: translateX(-120%); }
         .favorites-open { transform: translateX(0); }
 
@@ -194,6 +218,13 @@
             cursor: pointer; transition: all 0.2s; color: white; border: 1px solid transparent;
         }
         .fav-item:hover { background: rgba(255, 255, 255, 0.2); border-color: rgba(255,255,255,0.3); }
+
+        /* Forecast Item */
+        .forecast-item {
+            display: flex; align-items: center; justify-content: space-between; padding: 0.75rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1); color: white;
+        }
+        .forecast-item:last-child { border-bottom: none; }
 
         /* Kontroller */
         .search-container {
@@ -316,7 +347,6 @@
                 eyeColor: "Brown", clothingStyle: "Casual", mood: "Happy", glasses: "None", beard: "None", headwear: "None"
             });
 
-            // Seçeneklerin Türkçe Görünen, İngilizce Değer Dönen Yapısı
             const optionsMap = {
                 gender: [ {l:"Kadın", v:"Woman"}, {l:"Erkek", v:"Man"}, {l:"Kız Çocuğu", v:"Girl"}, {l:"Erkek Çocuğu", v:"Boy"} ],
                 age: [ {l:"Çocuk", v:"Child"}, {l:"Genç", v:"Teen"}, {l:"Yetişkin", v:"Young Adult"}, {l:"Orta Yaş", v:"Adult"}, {l:"Yaşlı", v:"Elderly"} ],
@@ -408,9 +438,37 @@
             );
         };
 
+        // --- HAFTALIK TAHMİN BİLEŞENİ (YENİ) ---
+        const WeeklyForecast = ({ data }) => {
+            if (!data) return null;
+
+            return (
+                <div className="forecast-sidebar custom-scrollbar">
+                    <h3 className="text-white font-bold mb-4 flex items-center gap-2 text-lg">
+                        <UIInfoIcon name="calendar" size={24} className="text-blue-400" /> 7 Günlük Tahmin
+                    </h3>
+                    <div className="flex flex-col gap-2">
+                        {data.map((day, i) => (
+                            <div key={i} className="forecast-item flex items-center justify-between p-3 bg-white/10 rounded-xl hover:bg-white/20 transition">
+                                <span className="font-bold text-white w-12">{day.day}</span>
+                                <div className="flex flex-col items-center">
+                                    <WeatherIcon iconName={day.icon} size={24} className="text-blue-300" />
+                                </div>
+                                <div className="flex gap-2 text-sm font-bold">
+                                    <span className="text-white">{day.max}°</span>
+                                    <span className="text-white/60">{day.min}°</span>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        };
+
         const App = () => {
             const [selectedCity, setSelectedCity] = useState("Eskişehir");
             const [weather, setWeather] = useState(null);
+            const [forecast, setForecast] = useState(null); // Yeni state
             const [loading, setLoading] = useState(true);
             const [avatarUrl, setAvatarUrl] = useState(null);
             const [avatarLoading, setAvatarLoading] = useState(false);
@@ -427,16 +485,35 @@
             }, []);
 
             const fetchWeather = async (cityName) => {
+                setLoading(true);
                 try {
                     const geo = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${cityName}&count=1&language=tr&format=json`).then(r=>r.json());
-                    if(!geo.results) return;
-                    const w = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${geo.results[0].latitude}&longitude=${geo.results[0].longitude}&current=temperature_2m,is_day,weather_code&timezone=auto`).then(r=>r.json());
+                    if(!geo.results) throw new Error("Şehir bulunamadı");
+                    const { latitude, longitude, name } = geo.results[0];
+
+                    // API Güncellendi: daily verisi eklendi
+                    const w = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,is_day,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto`).then(r=>r.json());
+                    
                     setWeather({
-                        city: geo.results[0].name.toLocaleUpperCase('tr-TR'),
+                        city: name.toLocaleUpperCase('tr-TR'),
                         temp: Math.round(w.current.temperature_2m),
                         code: w.current.weather_code,
                         isDay: w.current.is_day === 1
                     });
+
+                    // 7 Günlük Veriyi İşle
+                    const dailyData = w.daily.time.map((time, index) => {
+                        const date = new Date(time);
+                        const dayName = date.toLocaleDateString('tr-TR', { weekday: 'short' });
+                        return {
+                            day: dayName,
+                            max: Math.round(w.daily.temperature_2m_max[index]),
+                            min: Math.round(w.daily.temperature_2m_min[index]),
+                            icon: getWeatherInfo(w.daily.weather_code[index]).i
+                        };
+                    });
+                    setForecast(dailyData);
+
                 } catch(e) { console.error(e); } finally { setLoading(false); }
             };
 
@@ -503,7 +580,7 @@
                             {weather && <BackgroundEffect type={wInfo.type} isDay={weather.isDay} />}
                         </div>
                         
-                        {/* Favoriler Paneli */}
+                        {/* SOL: Favoriler Paneli */}
                         <div className={`favorites-sidebar custom-scrollbar overflow-y-auto ${isFavOpen ? 'favorites-open' : 'favorites-closed'}`}>
                             <div className="flex justify-between items-center mb-4">
                                 <h3 className="text-white font-bold flex gap-2 text-lg">
@@ -518,6 +595,29 @@
                                 {savedCities.map(c => <FavoriteCityItem key={c} city={c} onClick={() => {setSelectedCity(c); fetchWeather(c);}} onRemove={removeCity} />)}
                             </div>
                         </div>
+
+                        {/* SAĞ: 7 Günlük Tahmin */}
+                        {forecast && (
+                            <div className="hidden lg:flex flex-col absolute right-8 top-8 bottom-32 w-72 bg-black/40 backdrop-blur-xl rounded-3xl p-6 border border-white/10 z-20 overflow-y-auto custom-scrollbar">
+                                <h3 className="text-white font-bold mb-6 flex items-center gap-2 text-lg sticky top-0 bg-transparent">
+                                    <UIInfoIcon name="calendar-days" size={24} className="text-blue-400" /> 7 Günlük Tahmin
+                                </h3>
+                                <div className="flex flex-col gap-3">
+                                    {forecast.map((day, i) => (
+                                        <div key={i} className="flex items-center justify-between p-3 bg-white/5 rounded-xl hover:bg-white/10 transition border border-white/5">
+                                            <span className="font-bold text-white w-10 text-sm">{day.day}</span>
+                                            <div className="flex flex-col items-center">
+                                                <WeatherIcon iconName={day.icon} size={24} className="text-blue-300" />
+                                            </div>
+                                            <div className="flex gap-2 text-sm font-bold">
+                                                <span className="text-white">{day.max}°</span>
+                                                <span className="text-white/50 text-xs mt-1">{day.min}°</span>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
 
                         <div ref={cardRef} className="weather-card animate-fade-in flex flex-col items-center justify-center">
                             {avatarUrl && (
@@ -540,7 +640,7 @@
                         </div>
 
                         <div className="search-container flex items-center gap-3 w-[min(90vw,600px)] mt-8">
-                            {!isFavOpen && <button onClick={() => setIsFavOpen(true)} className="glass-bar p-4 text-gray-800 hover:bg-white hover:text-black tooltip border border-gray-200" title="Listeyi Aç">
+                            {!isFavOpen && <button onClick={() => setIsFavOpen(true)} className="glass-bar p-4 text-white hover:bg-white hover:text-black tooltip" title="Listeyi Aç">
                                 <UIInfoIcon name="list" size={24} />
                             </button>}
                             
@@ -574,17 +674,8 @@
                             }}></div>
                         )}
                         <div className="export-content-wrapper">
-                            <div className="exp-header">
-                                <h1 className="exp-city-name drop-shadow-xl">{weather?.city}</h1>
-                            </div>
-
-                            {/* SADECE DERECE - İKONSUZ VE YAZISIZ */}
-                            <div className="exp-card">
-                                <span className="text-[280px] font-black leading-none drop-shadow-2xl text-white tracking-tighter" style={{textShadow: '0 20px 60px rgba(0,0,0,0.6)'}}>
-                                    {weather?.temp}°
-                                </span>
-                            </div>
-
+                            
+                            {/* 4. TARİH - EN ALTTA (Değişti) */}
                             <div className="exp-date">
                                 <span className="text-5xl font-bold text-white/90 uppercase tracking-[0.4em] drop-shadow-md">{dateStr}</span>
                             </div>
