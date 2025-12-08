@@ -3,10 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>81 İl Canlı Hava Durumu ve Avatar</title>
+    <title>HavaDurumuhd</title>
     
-    <!-- FAVICON (SEKME GÖRSELİ) - Buraya bulut ikonu eklendi -->
+    <!-- FAVICON (SEKME GÖRSELİ) -->
     <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/1163/1163624.png" />
+
+    <!-- GOOGLE ADSENSE -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6212448037400866"
+     crossorigin="anonymous"></script>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
@@ -240,6 +244,7 @@
     <script type="text/babel">
         const { useState, useEffect, useRef, useMemo } = React;
 
+        // YENİ GARANTİ GÖRÜNÜR İKON BİLEŞENİ
         const UIInfoIcon = ({ name, size = 24, className="" }) => {
             useEffect(() => {
                 if (window.lucide) window.lucide.createIcons();
@@ -275,6 +280,7 @@
             return <i data-lucide={iconName} width={size} height={size} className={className}></i>;
         };
 
+        // --- HAVA EFEKTLERİ ---
         const BackgroundEffect = ({ type, isDay }) => {
             const elements = useMemo(() => {
                 if (type === 'rain') {
@@ -338,12 +344,14 @@
             );
         };
 
+        // --- AVATAR MODALI (GELİŞMİŞ - TÜRKÇE) ---
         const AvatarCreator = ({ onClose, onGenerate }) => {
             const [traits, setTraits] = useState({
                 gender: "Woman", age: "Young Adult", skinTone: "Light", hairColor: "Brown", hairStyle: "Long Wavy",
                 eyeColor: "Brown", clothingStyle: "Casual", mood: "Happy", glasses: "None", beard: "None", headwear: "None"
             });
 
+            // Seçeneklerin Türkçe Görünen, İngilizce Değer Dönen Yapısı
             const optionsMap = {
                 gender: [ {l:"Kadın", v:"Woman"}, {l:"Erkek", v:"Man"}, {l:"Kız Çocuğu", v:"Girl"}, {l:"Erkek Çocuğu", v:"Boy"} ],
                 age: [ {l:"Çocuk", v:"Child"}, {l:"Genç", v:"Teen"}, {l:"Yetişkin", v:"Young Adult"}, {l:"Orta Yaş", v:"Adult"}, {l:"Yaşlı", v:"Elderly"} ],
