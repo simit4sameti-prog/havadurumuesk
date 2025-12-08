@@ -20,7 +20,7 @@
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
         
         body {
             font-family: 'Nunito', sans-serif;
@@ -128,6 +128,12 @@
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
             z-index: 20; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end; /* İçeriği alta sabitle */
+            padding-bottom: 150px; /* Alttan boşluk */
+            gap: 20px; /* Elemanlar arası boşluk */
         }
 
         /* Arka Plan Avatarı (Blur Efekti) */
@@ -137,53 +143,11 @@
             z-index: 5;
             background-size: cover;
             background-position: center;
-            filter: blur(40px) brightness(0.7) saturate(1.1); 
+            /* Güçlü Blur */
+            filter: blur(35px) brightness(0.65) saturate(1.1); 
             transform: scale(1.1); 
         }
         
-        /* Başlık - Yukarıda */
-        .exp-header {
-            position: absolute; 
-            top: 300px; 
-            left: 0; width: 100%; 
-            text-align: center;
-        }
-        
-        .exp-city-name {
-            font-size: 110px; 
-            font-weight: 900;
-            color: white;
-            text-transform: uppercase;
-            letter-spacing: -0.02em;
-            line-height: 1;
-            text-shadow: 0 5px 40px rgba(0,0,0,0.8);
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        /* Hava Durumu Kartı (SADECE DERECE) - ORTADA */
-        .exp-card {
-            position: absolute; 
-            top: 50%; 
-            left: 50%; transform: translate(-50%, -50%);
-            width: 100%;
-            display: flex; 
-            flex-direction: column;
-            align-items: center; 
-            justify-content: center; 
-        }
-
-        /* Derece - 280px boyutunda */
-        .exp-temp {
-            font-size: 280px; 
-            font-weight: 900;
-            line-height: 1;
-            color: white;
-            text-shadow: 0 10px 40px rgba(0,0,0,0.5);
-            margin: 0;
-            letter-spacing: -10px;
-        }
-
         /* Tarih - En Altta */
         .exp-date {
             position: absolute; bottom: 150px; left: 0; width: 100%; text-align: center;
@@ -196,6 +160,7 @@
             text-transform: uppercase;
             letter-spacing: 0.4em;
             text-shadow: 0 2px 15px rgba(0,0,0,0.6);
+            margin-top: 50px;
         }
 
         /* Modal */
@@ -609,20 +574,8 @@
                             }}></div>
                         )}
                         <div className="export-content-wrapper">
-                            <div className="exp-header">
-                                <h1 className="exp-city-name drop-shadow-xl">{weather?.city}</h1>
-                            </div>
-
-                            {/* SADECE DERECE - İKONSUZ VE YAZISIZ */}
-                            <div className="exp-card">
-                                <span className="text-[280px] font-black leading-none drop-shadow-2xl text-white tracking-tighter" style={{textShadow: '0 20px 60px rgba(0,0,0,0.6)'}}>
-                                    {weather?.temp}°
-                                </span>
-                            </div>
-
-                            <div className="exp-date">
-                                <span className="text-5xl font-bold text-white/90 uppercase tracking-[0.4em] drop-shadow-md">{dateStr}</span>
-                            </div>
+                            
+                            <div className="exp-date-text">{dateStr}</div>
                         </div>
                     </div>
                 </>
