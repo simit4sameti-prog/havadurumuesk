@@ -3,15 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HavaDurumuhd</title>
+    <title>HavaDurumuhd Pro | Modern Weather App</title>
     
     <!-- FAVICON -->
     <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/1163/1163624.png" />
 
-    <!-- GOOGLE ADSENSE -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6212448037400866"
-     crossorigin="anonymous"></script>
-    
+    <!-- SCRIPTS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -26,7 +23,7 @@
             font-family: 'Nunito', sans-serif;
             margin: 0;
             overflow: hidden;
-            background-color: #1a1a1a;
+            background-color: #0f172a;
             color: #fff;
             touch-action: manipulation;
         }
@@ -38,18 +35,15 @@
             position: relative;
         }
 
-        /* --- KATMAN 1: ARKA PLAN EFEKTLERİ --- */
+        /* --- KATMANLAR --- */
         .bg-layer {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
             z-index: 0;
             pointer-events: none;
         }
 
-        /* --- KATMAN 2: ANA İÇERİK --- */
         .content-layer {
             position: relative;
             z-index: 10;
@@ -58,168 +52,92 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: space-between; /* Yay */
-            padding: 20px 0;
+            justify-content: space-between;
+            padding: 15px 0;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
-        /* --- KATMAN 3: İNDİRME ALANI (GİZLİ & SABİT) --- */
-        #profile-export-container {
-            position: fixed;
-            top: 0;
-            left: -9999px;
-            width: 1080px;
-            height: 1920px;
-            z-index: -9999;
-            background-color: #222;
-            overflow: hidden;
-            display: block; 
-        }
-
-        /* HAVA EFEKTİ STİLLERİ */
+        /* HAVA EFEKTLERİ */
         .weather-bg-container { width: 100%; height: 100%; overflow: hidden; position: relative; }
-        .bg-sun { background: linear-gradient(to bottom right, #4facfe 0%, #00f2fe 100%); }
-        .sun-orb { position: absolute; top: 5%; right: 5%; width: 250px; height: 250px; background: radial-gradient(circle, #fdbb2d 0%, rgba(253, 187, 45, 0.4) 60%, transparent 70%); filter: blur(20px); animation: pulseSun 6s infinite ease-in-out; }
-        .sun-ray { position: absolute; top: 50%; left: 50%; width: 200vw; height: 150px; background: linear-gradient(90deg, rgba(255,255,255,0.1), transparent); transform-origin: left center; filter: blur(8px); }
-        @keyframes pulseSun { 0%, 100% { transform: scale(1); opacity: 0.9; } 50% { transform: scale(1.1); opacity: 1; } }
+        .bg-sun { background: linear-gradient(to bottom, #0284c7, #38bdf8); }
+        .bg-cloud { background: linear-gradient(to bottom, #475569, #94a3b8); }
+        .bg-rain { background: linear-gradient(to bottom, #1e293b, #334155); }
+        .bg-snow { background: linear-gradient(to bottom, #cbd5e1, #f8fafc); }
+        .bg-storm { background: linear-gradient(to bottom, #020617, #1e293b); }
 
-        .bg-cloud { background: linear-gradient(to bottom, #757f9a, #d7dde8); }
-        .bg-rain { background: linear-gradient(to bottom, #203a43, #2c5364); }
-        .bg-snow { background: linear-gradient(to bottom, #83a4d4, #b6fbff); }
-        .bg-storm { background: linear-gradient(to bottom, #232526, #414345); }
-
-        .heavy-rain { position: absolute; background: rgba(255,255,255,0.6); width: 2px; height: 40px; animation: rainFall 0.7s linear infinite; }
+        /* Yağmur/Kar animasyonları */
+        .heavy-rain { position: absolute; background: rgba(255,255,255,0.4); width: 1px; height: 30px; animation: rainFall 0.5s linear infinite; }
         @keyframes rainFall { to { transform: translateY(110vh); } }
         .big-snow { position: absolute; background: white; border-radius: 50%; opacity: 0.8; animation: snowFall 5s linear infinite; }
         @keyframes snowFall { to { transform: translateY(110vh) rotate(360deg); } }
-        .big-cloud { position: absolute; background: #fff; border-radius: 100px; opacity: 0.8; filter: blur(20px); animation: floatCloud 60s linear infinite; }
-        @keyframes floatCloud { from { transform: translateX(-300px); } to { transform: translateX(120vw); } }
-        .flash { position: absolute; inset: 0; background: white; opacity: 0; animation: thunder 6s infinite; }
-        @keyframes thunder { 92% { opacity: 0; } 93% { opacity: 0.6; } 94% { opacity: 0; } }
 
         /* KART VE UI */
         .weather-card {
             position: relative;
-            z-index: 10;
-            width: 90%;
-            max-width: 500px;
-            background: rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 32px;
-            padding: 1.5rem;
+            width: 92%;
+            max-width: 480px;
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 40px;
+            padding: 2rem 1.5rem;
             text-align: center;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-            transition: all 0.3s ease;
-            margin: auto;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            margin: 10px auto;
         }
-        
-        .city-title { font-weight: 900; color: #fff; text-shadow: 0 4px 20px rgba(0,0,0,0.5); line-height: 1.1; }
-        
-        /* BUTONLAR - DAHA BELİRGİN ÇERÇEVE */
+
+        .hourly-scroll {
+            width: 92%;
+            max-width: 480px;
+            display: flex;
+            gap: 15px;
+            overflow-x: auto;
+            padding: 15px 5px;
+            scrollbar-width: none;
+        }
+        .hourly-scroll::-webkit-scrollbar { display: none; }
+
+        .hourly-item {
+            min-width: 75px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
         .glass-bar {
             background: rgba(255, 255, 255, 0.95);
-            color: #1f2937;
+            color: #0f172a;
             border-radius: 9999px;
-            border: 2px solid rgba(255, 255, 255, 0.5); /* Çerçeve Eklendi */
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            transition: transform 0.1s;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s;
         }
-        .glass-bar:active { transform: scale(0.95); }
-        
-        /* --- İNDİRME ALANI STİLLERİ --- */
-        .export-content-wrapper {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 20; 
-            display: flex; flex-direction: column; align-items: center; justify-content: flex-end; 
-            padding-bottom: 200px; gap: 20px; 
-        }
+        .glass-bar:active { transform: scale(0.92); }
 
-        .export-bg-avatar {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 5;
-            background-size: cover; background-position: center;
-            filter: blur(40px) brightness(0.7) saturate(1.1); transform: scale(1.1); 
-        }
-        
-        .exp-header { position: absolute; top: 250px; left: 0; width: 100%; text-align: center; }
-        .exp-city-name {
-            font-size: 110px; font-weight: 900; color: white; text-transform: uppercase; letter-spacing: -0.02em; line-height: 1;
-            text-shadow: 0 5px 40px rgba(0,0,0,0.8); text-align: center; margin-bottom: 20px;
-        }
-
-        .exp-card {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100%;
-            display: flex; flex-direction: column; align-items: center; justify-content: center; 
-        }
-
-        .exp-temp {
-            font-size: 260px; font-weight: 900; line-height: 0.9; color: white;
-            text-shadow: 0 10px 40px rgba(0,0,0,0.5); margin: 0; letter-spacing: -10px;
-        }
-
-        .exp-desc {
-            font-size: 40px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.15em; color: rgba(255,255,255,0.95);
-            background: rgba(255,255,255,0.15); padding: 10px 50px; border-radius: 99px; backdrop-filter: blur(10px); margin-top: 20px;
-        }
-
-        .exp-date { position: absolute; bottom: 150px; left: 0; width: 100%; text-align: center; }
-        .exp-date-text {
-            font-size: 32px; font-weight: 700; color: rgba(255,255,255,0.85); text-transform: uppercase; letter-spacing: 0.4em;
-            text-shadow: 0 2px 15px rgba(0,0,0,0.6); margin-top: 50px;
-        }
-
-        /* YAN PANELLER (FAVORİ & TAHMİN) */
-        .sidebar-panel {
-            position: fixed; /* Mobilde Fixed */
-            top: 0; bottom: 0;
-            width: 85%; max-width: 320px;
-            background: rgba(20, 20, 20, 0.95);
-            backdrop-filter: blur(20px);
-            z-index: 60;
-            padding: 2rem 1.5rem;
-            display: flex; flex-direction: column;
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 0 50px rgba(0,0,0,0.8);
-            border-right: 1px solid rgba(255,255,255,0.1);
-        }
-
-        /* SOL PANEL */
-        .sidebar-left { left: 0; border-right: 1px solid rgba(255,255,255,0.1); }
-        .sidebar-left.closed { transform: translateX(-110%); }
-        .sidebar-left.open { transform: translateX(0); }
-
-        /* SAĞ PANEL (TAHMİN) */
-        .sidebar-right { right: 0; border-left: 1px solid rgba(255,255,255,0.1); }
-        .sidebar-right.closed { transform: translateX(110%); }
-        .sidebar-right.open { transform: translateX(0); }
-
-        .list-item {
-            display: flex; align-items: center; justify-content: space-between; padding: 1rem;
-            background: rgba(255, 255, 255, 0.1); border-radius: 12px; margin-bottom: 0.5rem;
-            cursor: pointer; transition: all 0.2s; color: white; border: 1px solid rgba(255,255,255,0.1);
-        }
-        .list-item:hover { background: rgba(255, 255, 255, 0.2); border-color: rgba(255,255,255,0.4); }
-
-        /* Modal & Form */
-        .glass-modal { background: rgba(255,255,255,0.95); border-radius: 24px; color: #333; }
-        select { background: #f3f4f6; border: 1px solid #ddd; }
-
-        /* Kontroller */
         .search-container {
-            width: 95%; max-width: 600px; display: flex; gap: 0.5rem; align-items: center; margin-bottom: 2rem; padding: 10px;
-            background: rgba(0,0,0,0.3); backdrop-filter: blur(10px); border-radius: 24px; border: 1px solid rgba(255,255,255,0.2);
+            width: 92%; max-width: 480px; display: flex; gap: 8px; align-items: center; padding: 6px;
+            background: rgba(0,0,0,0.5); backdrop-filter: blur(15px); border-radius: 35px; border: 1px solid rgba(255,255,255,0.1);
         }
+
+        #profile-export-container {
+            position: fixed; top: 0; left: -2000px; width: 1080px; height: 1920px; z-index: -9999; overflow: hidden;
+        }
+
+        .animate-pop { animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes pop { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     </style>
 </head>
 <body>
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect, useRef, useMemo } = React;
-
-        const UIInfoIcon = ({ name, size = 24, className="" }) => {
-            useEffect(() => { if (window.lucide) window.lucide.createIcons(); });
-            return <i data-lucide={name} width={size} height={size} className={className}></i>;
-        };
+        const { useState, useEffect, useMemo } = React;
 
         const TR_CITIES = [
             "Adana", "Adıyaman", "Afyonkarahisar", "Ağrı", "Aksaray", "Amasya", "Ankara", "Antalya", "Ardahan", "Artvin", "Aydın", 
@@ -234,214 +152,226 @@
 
         const getWeatherInfo = (code) => {
             const map = {
-                0: {t:"Güneşli", i:"sun", type:"sun"}, 1: {t:"Az Bulutlu", i:"cloud-sun", type:"partly-cloudy"}, 
-                2: {t:"Parçalı Bulutlu", i:"cloud-sun", type:"cloud"}, 3: {t:"Kapalı", i:"cloud", type:"cloud"}, 
-                45: {t:"Sisli", i:"cloud-fog", type:"cloud"}, 48: {t:"Kırağı", i:"cloud-fog", type:"cloud"},
-                51: {t:"Çiseleme", i:"cloud-drizzle", type:"rain"}, 61: {t:"Yağmur", i:"cloud-rain", type:"rain"}, 
-                63: {t:"Sağanak", i:"cloud-rain", type:"rain"}, 71: {t:"Kar", i:"snowflake", type:"snow"},
-                73: {t:"Yoğun Kar", i:"snowflake", type:"snow"}, 95: {t:"Fırtına", i:"cloud-lightning", type:"storm"}
+                0: {t:"Güneşli", i:"sun", type:"sun", advice: "Güneş kremi sürmeyi unutma!"}, 
+                1: {t:"Az Bulutlu", i:"cloud-sun", type:"partly-cloudy", advice: "Hava harika, tadını çıkar."}, 
+                2: {t:"Parçalı Bulutlu", i:"cloud-sun", type:"cloud", advice: "Bulutlar güneşle dans ediyor."}, 
+                3: {t:"Kapalı", i:"cloud", type:"cloud", advice: "Gri ama huzurlu bir gün."}, 
+                45: {t:"Sisli", i:"cloud-fog", type:"cloud", advice: "Görüş mesafesi düşük, dikkat!"}, 
+                51: {t:"Çiseleme", i:"cloud-drizzle", type:"rain", advice: "Hafif bir yağmur geçişi var."}, 
+                61: {t:"Yağmur", i:"cloud-rain", type:"rain", advice: "Şemsiyeni mutlaka yanına al!"}, 
+                63: {t:"Sağanak", i:"cloud-rain", type:"rain", advice: "Dışarı çıkarken dikkat et, ıslanma."}, 
+                71: {t:"Kar", i:"snowflake", type:"snow", advice: "Lapa lapa kar yağıyor!"},
+                95: {t:"Fırtına", i:"cloud-lightning", type:"storm", advice: "Gök gürültüsüne hazırlıklı ol!"}
             };
-            return map[code] || {t:"Bilinmiyor", i:"cloud", type:"cloud"};
+            return map[code] || {t:"Bulutlu", i:"cloud", type:"cloud", advice: "Hava değişken olabilir."};
         };
 
-        const WeatherIcon = ({ iconName, size = 48, className = "" }) => {
-            useEffect(() => { if(window.lucide) window.lucide.createIcons(); }, [iconName]);
-            return <i data-lucide={iconName} width={size} height={size} className={className}></i>;
+        const LucideIcon = ({ name, size = 24, className = "" }) => {
+            useEffect(() => { if (window.lucide) window.lucide.createIcons(); }, [name]);
+            return <i data-lucide={name} style={{ width: size, height: size }} className={className}></i>;
         };
 
-        // --- HAVA EFEKTLERİ ---
         const BackgroundEffect = ({ type, isDay }) => {
             const elements = useMemo(() => {
-                if (type === 'rain') return Array.from({ length: 100 }).map((_, i) => <div key={i} className="heavy-rain" style={{ left: `${Math.random()*100}%`, animationDuration: `${0.5+Math.random()*0.5}s`, animationDelay: `-${Math.random()}s` }} />);
-                if (type === 'snow') return Array.from({ length: 60 }).map((_, i) => <div key={i} className="big-snow" style={{ left: `${Math.random()*100}%`, width: `${5+Math.random()*10}px`, height: `${5+Math.random()*10}px`, animationDuration: `${3+Math.random()*5}s`, animationDelay: `-${Math.random()*5}s` }} />);
-                if (type === 'cloud') return Array.from({ length: 6 }).map((_, i) => <div key={i} className="big-cloud" style={{ width: `${150+Math.random()*200}px`, height: `${60+Math.random()*80}px`, top: `${10+Math.random()*60}%`, animationDuration: `${20+Math.random()*30}s`, opacity: 0.6 }} />);
-                if ((type === 'sun' || type === 'partly-cloudy') && isDay) return <><div className="sun-orb"></div><div className="sun-ray" style={{transform:'rotate(0deg)'}}></div><div className="sun-ray" style={{transform:'rotate(45deg)'}}></div><div className="sun-ray" style={{transform:'rotate(90deg)'}}></div><div className="sun-ray" style={{transform:'rotate(135deg)'}}></div></>;
-                if (type === 'storm') return <div className="flash"></div>;
+                if (type === 'rain') return Array.from({ length: 60 }).map((_, i) => <div key={i} className="heavy-rain" style={{ left: `${Math.random()*100}%`, animationDuration: `${0.4+Math.random()*0.4}s`, animationDelay: `-${Math.random()}s` }} />);
+                if (type === 'snow') return Array.from({ length: 40 }).map((_, i) => <div key={i} className="big-snow" style={{ left: `${Math.random()*100}%`, width: `${4+Math.random()*8}px`, height: `${4+Math.random()*8}px`, animationDuration: `${4+Math.random()*4}s` }} />);
                 return null;
-            }, [type, isDay]);
-            let bgClass = 'bg-cloud'; if (type === 'rain') bgClass = 'bg-rain'; else if (type === 'snow') bgClass = 'bg-snow'; else if ((type === 'sun' || type === 'partly-cloudy') && isDay) bgClass = 'bg-sun'; else if (type === 'storm') bgClass = 'bg-storm';
-            return <div className={`weather-bg-container ${bgClass}`}>{elements}</div>;
-        };
-
-        // --- AVATAR MODALI ---
-        const AvatarCreator = ({ onClose, onGenerate }) => {
-            const [traits, setTraits] = useState({ gender: "Woman", age: "Young Adult", skinTone: "Light", hairColor: "Brown", hairStyle: "Long Wavy", eyeColor: "Brown", clothingStyle: "Casual", mood: "Happy", glasses: "None", beard: "None", headwear: "None" });
-            const optionsMap = {
-                gender: [ {l:"Kadın", v:"Woman"}, {l:"Erkek", v:"Man"}, {l:"Kız Çocuğu", v:"Girl"}, {l:"Erkek Çocuğu", v:"Boy"} ],
-                age: [ {l:"Çocuk", v:"Child"}, {l:"Genç", v:"Teen"}, {l:"Yetişkin", v:"Young Adult"}, {l:"Orta Yaş", v:"Adult"}, {l:"Yaşlı", v:"Elderly"} ],
-                skinTone: [ {l:"Açık", v:"Light"}, {l:"Buğday", v:"Tan"}, {l:"Esmer", v:"Dark"}, {l:"Soluk", v:"Pale"} ],
-                hairColor: [ {l:"Kahverengi", v:"Brown"}, {l:"Siyah", v:"Black"}, {l:"Sarı", v:"Blonde"}, {l:"Kızıl", v:"Red"}, {l:"Gri", v:"Grey"}, {l:"Pembe", v:"Pink"} ],
-                hairStyle: [ {l:"Uzun Dalgalı", v:"Long Wavy"}, {l:"Kısa Kesim", v:"Short Cut"}, {l:"At Kuyruğu", v:"Ponytail"}, {l:"Kel", v:"Bald"}, {l:"Başörtülü", v:"Hijab"}, {l:"Kıvırcık", v:"Curly"} ],
-                eyeColor: [ {l:"Kahverengi", v:"Brown"}, {l:"Mavi", v:"Blue"}, {l:"Yeşil", v:"Green"}, {l:"Ela", v:"Hazel"}, {l:"Siyah", v:"Black"} ],
-                clothingStyle: [ {l:"Günlük", v:"Casual"}, {l:"Spor", v:"Sporty"}, {l:"Resmi", v:"Formal"}, {l:"Sokak Modası", v:"Streetwear"}, {l:"Geleneksel", v:"Traditional"} ],
-                mood: [ {l:"Mutlu", v:"Happy"}, {l:"Havalı", v:"Cool"}, {l:"Ciddi", v:"Serious"}, {l:"Şaşkın", v:"Surprised"}, {l:"Uykulu", v:"Sleepy"} ],
-                glasses: [ {l:"Yok", v:"None"}, {l:"Güneş Gözlüğü", v:"Sunglasses"}, {l:"Numaralı Gözlük", v:"Reading Glasses"} ],
-                headwear: [ {l:"Yok", v:"None"}, {l:"Şapka", v:"Cap"}, {l:"Bere", v:"Beanie"}, {l:"Fötr Şapka", v:"Hat"} ],
-                beard: [ {l:"Yok", v:"None"}, {l:"Tam Sakal", v:"Full Beard"}, {l:"Keçi Sakalı", v:"Goatee"}, {l:"Kirli Sakal", v:"Stubble"} ]
-            };
-            const renderSelect = (label, key) => (<div><label className="block text-xs font-bold text-gray-500 mb-1">{label}</label><select className="custom-select w-full p-2.5 rounded-xl text-sm" value={traits[key]} onChange={e=>setTraits({...traits, [key]:e.target.value})}>{optionsMap[key].map(o=><option key={o.v} value={o.v}>{o.l}</option>)}</select></div>);
-            return (
-                <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in"><div className="glass-modal w-full max-w-lg p-6 relative max-h-[90vh] overflow-y-auto"><button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition-colors"><UIInfoIcon name="x" size={28} /></button><h2 className="text-2xl font-black text-gray-800 mb-4 text-center">Avatarını Tasarla</h2><div className="space-y-3"><div className="grid grid-cols-2 gap-3">{renderSelect("Cinsiyet", "gender")}{renderSelect("Yaş Grubu", "age")}</div><div className="grid grid-cols-2 gap-3">{renderSelect("Ten Rengi", "skinTone")}{renderSelect("Saç Rengi", "hairColor")}</div><div className="grid grid-cols-2 gap-3">{renderSelect("Saç Stili", "hairStyle")}{renderSelect("Göz Rengi", "eyeColor")}</div><div className="grid grid-cols-2 gap-3">{renderSelect("Giyim Tarzı", "clothingStyle")}{renderSelect("Ruh Hali", "mood")}</div><div className="grid grid-cols-2 gap-3">{renderSelect("Gözlük", "glasses")}{renderSelect("Aksesuar/Şapka", "headwear")}</div>{(traits.gender === "Man" || traits.gender === "Boy") && renderSelect("Sakal/Bıyık", "beard")}<div className="flex gap-2 mt-4"><button onClick={onClose} className="flex-1 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold rounded-xl transition-all">İptal</button><button onClick={()=>{onGenerate(traits); onClose();}} className="flex-[2] py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg transition-all">✨ Oluştur</button></div></div></div></div>
-            );
-        };
-
-        // --- YAN PANELLER (FAVORİLER VE TAHMİN) ---
-        const SidebarPanel = ({ title, icon, onClose, children, side="left", isOpen }) => (
-            <div className={`sidebar-panel ${side === 'left' ? 'sidebar-left' : 'sidebar-right'} ${isOpen ? (side === 'left' ? 'sidebar-left open' : 'sidebar-right open') : (side === 'left' ? 'sidebar-left closed' : 'sidebar-right closed')}`}>
-                <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-white font-bold flex gap-2 text-lg"><UIInfoIcon name={icon} size={24} className="text-yellow-400" /> {title}</h3>
-                    <button onClick={onClose} className="bg-white/10 p-1 rounded-full hover:bg-white/20 transition"><UIInfoIcon name="x" size={20} /></button>
-                </div>
-                <div className="flex-1 overflow-y-auto space-y-2">{children}</div>
-            </div>
-        );
-
-        const FavoriteCityItem = ({ city, onClick, onRemove }) => {
-            const [data, setData] = useState(null);
-            useEffect(() => { let mounted = true; const load = async () => { try { const geo = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${city}&count=1&language=tr&format=json`).then(r=>r.json()); if(!geo.results || !mounted) return; const w = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${geo.results[0].latitude}&longitude=${geo.results[0].longitude}&current=temperature_2m,weather_code&timezone=auto`).then(r=>r.json()); if(mounted) setData({ temp: Math.round(w.current.temperature_2m), icon: getWeatherInfo(w.current.weather_code).i }); } catch(e) {} }; load(); return () => mounted = false; }, [city]);
-            return (
-                <div onClick={onClick} className="list-item group"><div className="flex items-center gap-2"><span className="text-white font-bold truncate max-w-[120px]">{city}</span></div><div className="flex items-center gap-2">{data ? <><span className="text-yellow-400 font-bold">{data.temp}°</span><div className="text-white/80 scale-75"><WeatherIcon iconName={data.icon} size={20}/></div></> : <div className="w-3 h-3 border-2 border-white rounded-full animate-spin"></div>}<button onClick={(e) => { e.stopPropagation(); onRemove(city); }} className="text-white/40 hover:text-red-400 p-1 transition-colors opacity-0 group-hover:opacity-100"><UIInfoIcon name="trash-2" size={16} /></button></div></div>
-            );
+            }, [type]);
+            return <div className={`weather-bg-container ${'bg-'+type}`}>{elements}</div>;
         };
 
         const App = () => {
-            const [selectedCity, setSelectedCity] = useState("Eskişehir");
+            const [selectedCity, setSelectedCity] = useState(localStorage.getItem('lastCity') || "Eskişehir");
             const [weather, setWeather] = useState(null);
-            const [forecast, setForecast] = useState(null);
-            const [loading, setLoading] = useState(true);
-            const [avatarUrl, setAvatarUrl] = useState(null);
-            const [avatarLoading, setAvatarLoading] = useState(false);
-            const [showModal, setShowModal] = useState(false);
-            const [savedCities, setSavedCities] = useState([]);
-            
-            // PANEL DURUMLARI
-            const [isFavOpen, setIsFavOpen] = useState(false);
-            const [isForecastOpen, setIsForecastOpen] = useState(false);
+            const [hourly, setHourly] = useState([]);
+            const [forecast, setForecast] = useState([]);
+            const [avatar, setAvatar] = useState(localStorage.getItem('userAvatar') || null);
+            const [loading, setLoading] = useState(false);
+            const [panels, setPanels] = useState({ fav: false, forecast: false });
+            const [favs, setFavs] = useState(JSON.parse(localStorage.getItem('favCities') || '[]'));
 
-            useEffect(() => {
-                const savedAvatar = localStorage.getItem('userAvatar'); if (savedAvatar) setAvatarUrl(savedAvatar);
-                setSavedCities(JSON.parse(localStorage.getItem('savedCities') || '[]'));
-                fetchWeather(selectedCity);
-            }, []);
-
-            const fetchWeather = async (cityName) => {
+            const fetchWeather = async (city) => {
                 setLoading(true);
                 try {
-                    const geo = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${cityName}&count=1&language=tr&format=json`).then(r=>r.json());
-                    if(!geo.results) throw new Error("Şehir bulunamadı");
+                    const geo = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${city}&count=1&language=tr&format=json`).then(r=>r.json());
+                    if (!geo.results) return;
                     const { latitude, longitude, name } = geo.results[0];
-                    const w = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,is_day,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto`).then(r=>r.json());
+                    const w = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,weather_code,wind_speed_10m&hourly=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset,uv_index_max&timezone=auto`).then(r=>r.json());
                     
-                    setWeather({ city: name.toLocaleUpperCase('tr-TR'), temp: Math.round(w.current.temperature_2m), code: w.current.weather_code, isDay: w.current.is_day === 1 });
-                    
-                    setForecast(w.daily.time.map((time, i) => ({
-                        day: new Date(time).toLocaleDateString('tr-TR', { weekday: 'long' }),
+                    setWeather({
+                        city: name.toLocaleUpperCase('tr-TR'),
+                        temp: Math.round(w.current.temperature_2m),
+                        feels: Math.round(w.current.apparent_temperature),
+                        humidity: w.current.relative_humidity_2m,
+                        wind: w.current.wind_speed_10m,
+                        rain: w.current.precipitation,
+                        code: w.current.weather_code,
+                        isDay: w.current.is_day === 1,
+                        uv: w.daily.uv_index_max[0],
+                        sunrise: w.daily.sunrise[0].split('T')[1],
+                        sunset: w.daily.sunset[0].split('T')[1]
+                    });
+
+                    // Saatlik tahmin (Önümüzdeki 24 saat)
+                    const nowIndex = new Date().getHours();
+                    const next24 = w.hourly.time.slice(nowIndex, nowIndex + 24).map((t, i) => ({
+                        time: t.split('T')[1],
+                        temp: Math.round(w.hourly.temperature_2m[nowIndex + i]),
+                        icon: getWeatherInfo(w.hourly.weather_code[nowIndex + i]).i
+                    }));
+                    setHourly(next24);
+
+                    setForecast(w.daily.time.map((t, i) => ({
+                        day: new Date(t).toLocaleDateString('tr-TR', { weekday: 'short' }),
                         max: Math.round(w.daily.temperature_2m_max[i]),
                         min: Math.round(w.daily.temperature_2m_min[i]),
                         icon: getWeatherInfo(w.daily.weather_code[i]).i
                     })));
 
-                } catch(e) { console.error(e); } finally { setLoading(false); }
+                    localStorage.setItem('lastCity', city);
+                } catch (e) { console.error(e); }
+                finally { setLoading(false); }
             };
 
-            const generateAvatar = (traits) => {
-                setAvatarLoading(true);
-                let outfit = traits.clothingStyle; if(weather?.temp < 10) outfit += ", winter clothes, scarf";
-                let extra = ""; if(traits.glasses!=="None") extra+=`, ${traits.glasses}`; if(traits.beard!=="None") extra+=`, ${traits.beard}`; if(traits.headwear!=="None") extra+=`, wearing ${traits.headwear}`;
-                const prompt = `cute 3d character portrait, ${traits.age} ${traits.gender}, ${traits.skinTone} skin, ${traits.hairStyle} ${traits.hairColor} hair, ${traits.eyeColor} eyes, ${traits.mood} expression, wearing ${outfit}${extra}, solid color background, 3d render, clay style, high quality, pixar style --no text`;
-                const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=512&height=512&model=flux&nologo=true&seed=${Math.floor(Math.random()*1000)}`;
-                // Yükleme kontrolü
-                const img = new Image();
-                img.onload = () => { setAvatarUrl(url); localStorage.setItem('userAvatar', url); setAvatarLoading(false); };
-                img.onerror = () => { setAvatarLoading(false); alert("Avatar oluşturulamadı, tekrar deneyin."); };
-                img.src = url;
+            const detectLocation = () => {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(pos => {
+                        fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${pos.coords.latitude}&longitude=${pos.coords.longitude}&localityLanguage=tr`)
+                        .then(r=>r.json()).then(data => {
+                            const city = data.city || data.principalSubdivision;
+                            setSelectedCity(city);
+                            fetchWeather(city);
+                        });
+                    });
+                }
             };
 
-            const handleCityChange = (e) => { setSelectedCity(e.target.value); fetchWeather(e.target.value); };
-            const refresh = () => fetchWeather(selectedCity);
-            const saveCity = () => { if (!savedCities.includes(selectedCity)) { const n = [...savedCities, selectedCity]; setSavedCities(n); localStorage.setItem('savedCities', JSON.stringify(n)); setIsFavOpen(true); } };
-            const removeCity = (c) => { const n = savedCities.filter(i => i !== c); setSavedCities(n); localStorage.setItem('savedCities', JSON.stringify(n)); };
+            useEffect(() => { fetchWeather(selectedCity); }, []);
 
-            const download = () => {
-                const target = document.getElementById('profile-export-container');
-                if (!target) return;
-                target.style.left = "0px"; target.style.zIndex = "-9999"; 
-                html2canvas(target, { scale: 3, useCORS: true, backgroundColor: "#1a1a1a", width: 1080, height: 1920, scrollX: 0, scrollY: 0 }).then(c => {
-                    target.style.left = "-9999px"; 
-                    const l = document.createElement('a'); l.download = `${selectedCity}_Hikaye.png`; l.href = c.toDataURL(); l.click();
-                }).catch(() => target.style.left = "-9999px");
+            const wInfo = weather ? getWeatherInfo(weather.code) : {t:"...", i:"cloud", type:"cloud", advice:""};
+
+            const downloadStory = () => {
+                const el = document.getElementById('profile-export-container');
+                el.style.left = "0px";
+                html2canvas(el, { scale: 2, useCORS: true }).then(canvas => {
+                    const link = document.createElement('a');
+                    link.download = `${selectedCity}_Story.png`;
+                    link.href = canvas.toDataURL();
+                    link.click();
+                    el.style.left = "-2000px";
+                });
             };
-
-            const dateStr = new Date().toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
-            const wInfo = weather ? getWeatherInfo(weather.code) : {t:"", i:"cloud", type:"cloud"};
 
             return (
-                <>
+                <div className="w-full h-full flex flex-col">
+                    <div className="bg-layer">{weather && <BackgroundEffect type={wInfo.type} isDay={weather.isDay} />}</div>
+                    
                     <div className="content-layer">
-                        <div className="bg-layer">{weather && <BackgroundEffect type={wInfo.type} isDay={weather.isDay} />}</div>
-                        
-                        {/* SOL PANEL: FAVORİLER */}
-                        <SidebarPanel title="Favoriler" icon="star" isOpen={isFavOpen} onClose={()=>setIsFavOpen(false)} side="left">
-                            {savedCities.length === 0 && <div className="text-white/50 text-sm italic">Henüz favori yok.</div>}
-                            {savedCities.map(c => <FavoriteCityItem key={c} city={c} onClick={() => {setSelectedCity(c); fetchWeather(c); setIsFavOpen(false);}} onRemove={removeCity} />)}
-                        </SidebarPanel>
+                        {/* Arama Barı */}
+                        <div className="search-container animate-pop">
+                            <button onClick={detectLocation} className="glass-bar p-3 text-blue-600"><LucideIcon name="map-pin" /></button>
+                            <select 
+                                value={selectedCity} 
+                                onChange={(e) => { setSelectedCity(e.target.value); fetchWeather(e.target.value); }}
+                                className="flex-1 bg-transparent border-none outline-none font-black text-gray-100 text-center text-lg appearance-none cursor-pointer"
+                            >
+                                {TR_CITIES.map(c => <option key={c} value={c} className="text-black">{c}</option>)}
+                            </select>
+                            <button onClick={() => setPanels({...panels, fav: true})} className="glass-bar p-3"><LucideIcon name="list" /></button>
+                        </div>
 
-                        {/* SAĞ PANEL: TAHMİN */}
-                        <SidebarPanel title="7 Günlük Tahmin" icon="calendar-days" isOpen={isForecastOpen} onClose={()=>setIsForecastOpen(false)} side="right">
-                            {forecast ? forecast.map((day, i) => (
-                                <div key={i} className="list-item">
-                                    <span className="font-bold text-white text-sm w-20">{day.day}</span>
-                                    <WeatherIcon iconName={day.icon} size={24} className="text-blue-300" />
-                                    <div className="flex gap-2 text-sm font-bold"><span className="text-white">{day.max}°</span><span className="text-white/50">{day.min}°</span></div>
-                                </div>
-                            )) : <div className="text-white/50 text-sm italic">Yükleniyor...</div>}
-                        </SidebarPanel>
-
-                        <div className="weather-card animate-fade-in flex flex-col items-center justify-center">
-                            {avatarUrl && (
-                                <div className="absolute bottom-6 left-6 w-24 h-24 rounded-full border-4 border-white/40 shadow-2xl overflow-hidden bg-white z-30 hover:scale-105 transition-transform group">
-                                    <img src={avatarUrl} className={`w-full h-full object-cover ${avatarLoading?'opacity-50':'opacity-100'}`} crossOrigin="anonymous"/>
-                                    {avatarLoading && <div className="absolute inset-0 flex items-center justify-center"><div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div></div>}
-                                    <button onClick={()=>{setAvatarUrl(null); localStorage.removeItem('userAvatar');}} className="absolute top-0 right-0 bg-red-500 text-white p-1 rounded-full text-xs opacity-0 group-hover:opacity-100">X</button>
-                                </div>
-                            )}
+                        {/* Ana Hava Kartı */}
+                        <div className="weather-card animate-pop">
                             {weather ? (
-                                <div className="flex flex-col items-center z-10 w-full">
-                                    <h1 className="city-title text-5xl md:text-7xl mb-4 drop-shadow-lg">{weather.city}</h1>
-                                    <div className="flex items-center gap-4 bg-white/20 backdrop-blur-md px-8 py-4 rounded-3xl border border-white/40 shadow-2xl">
-                                        <div className="text-white drop-shadow-md"><WeatherIcon iconName={wInfo.i} size={64} className="stroke-[2.5]" /></div>
-                                        <div className="flex flex-col items-start"><span className="text-7xl font-black text-white drop-shadow-md weather-temp">{weather.temp}°</span><span className="text-xl font-bold text-white uppercase tracking-wide opacity-90">{wInfo.t}</span></div>
+                                <>
+                                    <p className="text-sm font-bold tracking-[0.3em] opacity-80 mb-2 uppercase">Günün Özeti: {wInfo.t}</p>
+                                    <h1 className="text-5xl font-black mb-4 drop-shadow-lg">{weather.city}</h1>
+                                    
+                                    <div className="flex items-center justify-center gap-6 mb-6">
+                                        <LucideIcon name={wInfo.i} size={80} className="text-white drop-shadow-xl" />
+                                        <div className="text-left">
+                                            <span className="text-8xl font-black block leading-none">{weather.temp}°</span>
+                                            <span className="text-lg font-bold opacity-80 italic">Hissedilen: {weather.feels}°</span>
+                                        </div>
                                     </div>
-                                    <span className="text-white/90 font-bold tracking-widest text-lg uppercase mt-6 drop-shadow-md">{dateStr}</span>
+
+                                    <div className="grid grid-cols-3 gap-2 bg-black/20 p-4 rounded-3xl border border-white/10">
+                                        <div className="flex flex-col"><span className="text-xs opacity-60">Nem</span><span className="font-bold">%{weather.humidity}</span></div>
+                                        <div className="flex flex-col"><span className="text-xs opacity-60">Rüzgar</span><span className="font-bold">{weather.wind} km/s</span></div>
+                                        <div className="flex flex-col"><span className="text-xs opacity-60">UV İndeks</span><span className="font-bold">{weather.uv}</span></div>
+                                    </div>
+
+                                    <div className="mt-6 p-3 bg-white/10 rounded-2xl text-sm font-bold flex items-center justify-center gap-2">
+                                        <LucideIcon name="info" size={16} className="text-yellow-400"/>
+                                        {wInfo.advice}
+                                    </div>
+                                </>
+                            ) : <div className="p-10 font-black animate-pulse">Yükleniyor...</div>}
+                        </div>
+
+                        {/* Saatlik Tahmin (Kral özellik 1) */}
+                        <div className="text-left w-[92%] max-w-[480px] mt-4">
+                            <h3 className="text-sm font-black uppercase tracking-wider mb-2 flex items-center gap-2">
+                                <LucideIcon name="clock" size={16}/> Saatlik Tahmin
+                            </h3>
+                        </div>
+                        <div className="hourly-scroll">
+                            {hourly.map((h, i) => (
+                                <div key={i} className="hourly-item">
+                                    <span className="text-xs opacity-60">{h.time}</span>
+                                    <LucideIcon name={h.icon} size={24} className="my-2" />
+                                    <span className="font-bold">{h.temp}°</span>
                                 </div>
-                            ) : <div className="text-white animate-pulse text-2xl font-bold flex flex-col items-center gap-2"><div className="w-10 h-10 border-4 border-white border-t-transparent rounded-full animate-spin"></div>Veriler Alınıyor...</div>}
+                            ))}
                         </div>
 
-                        <div className="search-container">
-                            <button onClick={() => setIsFavOpen(true)} className="glass-bar p-3 text-white hover:bg-white hover:text-black" title="Favoriler"><UIInfoIcon name="list" size={24} /></button>
-                            <div className="relative flex-grow group"><select value={selectedCity} onChange={handleCityChange} className="custom-select w-full p-3 pl-4 pr-10 glass-bar text-gray-800 font-extrabold focus:outline-none cursor-pointer text-lg appearance-none">{TR_CITIES.map(c => <option key={c} value={c}>{c}</option>)}</select></div>
-                            <button onClick={saveCity} className="glass-bar p-3 text-yellow-600 hover:bg-white" title="Ekle"><UIInfoIcon name="star" size={24} className="fill-yellow-500" /></button>
-                            <button onClick={() => setIsForecastOpen(true)} className="glass-bar p-3 text-blue-500 hover:bg-white tooltip" title="Tahmin"><UIInfoIcon name="calendar-days" size={24} /></button>
-                            <button onClick={()=>setShowModal(true)} className="glass-bar p-3 text-gray-700 hover:bg-white" title="Avatar"><UIInfoIcon name="user-plus" size={24} /></button>
-                            <button onClick={refresh} className="glass-bar p-3 text-gray-700 hover:bg-white" title="Yenile"><UIInfoIcon name="refresh-cw" size={24} /></button>
-                            <button onClick={download} className="glass-bar p-3 text-pink-600 hover:bg-white" title="İndir"><UIInfoIcon name="download" size={24} /></button>
+                        {/* Alt Butonlar */}
+                        <div className="flex gap-4 my-6">
+                            <button onClick={() => setPanels({...panels, forecast: true})} className="glass-bar w-16 h-16"><LucideIcon name="calendar" /></button>
+                            <button onClick={downloadStory} className="glass-bar w-16 h-16 text-pink-600"><LucideIcon name="instagram" /></button>
+                            <button onClick={() => fetchWeather(selectedCity)} className="glass-bar w-16 h-16 text-indigo-600"><LucideIcon name="refresh-cw" /></button>
                         </div>
-                        {showModal && <AvatarCreator onClose={()=>setShowModal(false)} onGenerate={generateAvatar}/>}
                     </div>
 
-                    <div id="profile-export-container">
-                        {weather && <BackgroundEffect type={wInfo.type} isDay={weather.isDay} />}
-                        {avatarUrl && <div className="export-bg-avatar" style={{backgroundImage: `url(${avatarUrl})`}}></div>}
-                        <div className="export-content-wrapper">
-                            <div className="exp-header"><h1 className="exp-city-name drop-shadow-xl">{weather?.city}</h1></div>
-                            <div className="exp-card">
-                                <span className="exp-temp">{weather?.temp}°</span>
-                                <span className="exp-desc">{wInfo.t}</span>
+                    {/* Yan Panel: Günlük Tahmin */}
+                    <div className={`fixed inset-0 z-50 transition-all ${panels.forecast ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
+                        <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={() => setPanels({...panels, forecast: false})}></div>
+                        <div className={`absolute bottom-0 left-0 right-0 bg-slate-900 p-8 rounded-t-[50px] transition-transform duration-500 ${panels.forecast ? 'translate-y-0' : 'translate-y-full'}`}>
+                            <div className="w-12 h-1 bg-white/20 mx-auto mb-6 rounded-full"></div>
+                            <h2 className="text-2xl font-black mb-6">Haftalık Tahmin</h2>
+                            <div className="space-y-4">
+                                {forecast.map((d, i) => (
+                                    <div key={i} className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5">
+                                        <span className="font-bold w-12">{d.day}</span>
+                                        <LucideIcon name={d.icon} size={28} className="text-blue-300" />
+                                        <div className="font-black"><span className="text-white">{d.max}°</span> <span className="text-white/40 ml-2">{d.min}°</span></div>
+                                    </div>
+                                ))}
                             </div>
-                            <div className="exp-date"><span className="text-5xl font-bold text-white/90 uppercase tracking-[0.4em] drop-shadow-md">{dateStr}</span></div>
                         </div>
                     </div>
-                </>
+
+                    {/* STORY EXPORT (Gizli Katman) */}
+                    <div id="profile-export-container">
+                        <div className={`absolute inset-0 ${'bg-'+wInfo.type}`}>
+                             {avatar && <div className="absolute inset-0 opacity-40 blur-3xl scale-150" style={{backgroundImage: `url(${avatar})`, backgroundSize:'cover'}}></div>}
+                             <div className="absolute inset-0 bg-black/20"></div>
+                        </div>
+                        <div className="relative z-10 h-full flex flex-col items-center justify-center p-20 text-center">
+                            <h1 className="text-[120px] font-black uppercase mb-10 drop-shadow-2xl">{weather?.city}</h1>
+                            <LucideIcon name={wInfo.i} size={300} className="mb-10 drop-shadow-2xl"/>
+                            <span className="text-[350px] font-black leading-none">{weather?.temp}°</span>
+                            <div className="bg-white/20 backdrop-blur-xl p-10 rounded-[60px] border border-white/30 w-full mt-10">
+                                <p className="text-6xl font-bold uppercase tracking-[10px] mb-6">{wInfo.t}</p>
+                                <p className="text-4xl opacity-80 italic">"{wInfo.advice}"</p>
+                            </div>
+                            <div className="mt-auto pt-20 flex gap-20 text-4xl font-bold opacity-70">
+                                <span>Nem: %{weather?.humidity}</span>
+                                <span>Rüzgar: {weather?.wind} km/s</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             );
         };
 
