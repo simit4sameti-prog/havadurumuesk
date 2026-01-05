@@ -3,12 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HavaDurumuhd Pro | Özel Sürüm</title>
+    <title>HavaDurumuhd Pro | Ultra Editör</title>
     
-    <!-- FAVICON -->
     <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/1163/1163624.png" />
 
-    <!-- SCRIPTS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -28,37 +26,16 @@
             touch-action: manipulation;
         }
 
-        #root {
-            width: 100vw;
-            height: 100vh;
-            height: 100dvh;
-            position: relative;
-        }
+        #root { width: 100vw; height: 100vh; height: 100dvh; position: relative; }
 
-        /* --- KATMANLAR --- */
-        .bg-layer {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            z-index: 0;
-            pointer-events: none;
-        }
+        .bg-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
 
         .content-layer {
-            position: relative;
-            z-index: 10;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: space-between;
-            padding: 15px 0;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
+            position: relative; z-index: 10; width: 100%; height: 100%;
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: space-between; padding: 15px 0; overflow-y: auto;
         }
 
-        /* HAVA EFEKTLERİ */
         .weather-bg-container { width: 100%; height: 100%; overflow: hidden; position: relative; }
         .bg-sun { background: linear-gradient(to bottom, #0284c7, #38bdf8); }
         .bg-cloud { background: linear-gradient(to bottom, #475569, #94a3b8); }
@@ -71,105 +48,70 @@
         .big-snow { position: absolute; background: white; border-radius: 50%; opacity: 0.8; animation: snowFall 5s linear infinite; }
         @keyframes snowFall { to { transform: translateY(110vh) rotate(360deg); } }
 
-        /* KART VE UI */
         .weather-card {
-            position: relative;
-            width: 92%;
-            max-width: 480px;
-            background: rgba(255, 255, 255, 0.12);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 40px;
-            padding: 2.5rem 1.5rem;
-            text-align: center;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            margin: 10px auto;
+            position: relative; width: 92%; max-width: 480px;
+            background: rgba(255, 255, 255, 0.12); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 40px;
+            padding: 2.5rem 1.5rem; text-align: center; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            margin: 20px auto 10px auto;
+        }
+
+        .avatar-badge {
+            position: absolute; top: -20px; right: -10px; width: 85px; height: 85px;
+            border-radius: 24px; border: 4px solid rgba(255,255,255,0.4); overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4); background: #1e293b; z-index: 50;
         }
 
         .hourly-scroll {
-            width: 94%;
-            max-width: 520px;
-            display: flex;
-            gap: 14px;
-            overflow-x: auto;
-            padding: 15px 10px 25px 10px;
-            scrollbar-width: none;
-            background: rgba(0,0,0,0.1);
-            border-radius: 30px;
+            width: 94%; max-width: 520px; display: flex; gap: 14px;
+            overflow-x: auto; padding: 15px 10px 25px 10px; scrollbar-width: none;
+            background: rgba(0,0,0,0.15); border-radius: 30px; margin-top: 10px;
         }
         .hourly-scroll::-webkit-scrollbar { display: none; }
 
         .hourly-item {
-            min-width: 90px;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(12px);
-            border-radius: 24px;
-            padding: 18px 12px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            border: 1px solid rgba(255,255,255,0.1);
-            transition: all 0.3s ease;
+            min-width: 95px; background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(12px);
+            border-radius: 24px; padding: 18px 12px; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.1);
         }
 
         .glass-bar {
-            background: rgba(255, 255, 255, 0.95);
-            color: #0f172a;
-            border-radius: 9999px;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            background: rgba(255, 255, 255, 0.95); color: #0f172a; border-radius: 9999px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); transition: all 0.2s;
+            display: flex; align-items: center; justify-content: center;
         }
-        .glass-bar:active { transform: scale(0.92); }
 
         .search-container {
             width: 92%; max-width: 480px; display: flex; gap: 8px; align-items: center; padding: 6px;
             background: rgba(0,0,0,0.5); backdrop-filter: blur(15px); border-radius: 35px; border: 1px solid rgba(255,255,255,0.1);
         }
 
-        /* --- PREVIEW & EXPORT --- */
         #profile-export-container {
-            position: fixed; top: 0; left: -3000px; width: 1080px; height: 1920px; z-index: -9999; overflow: hidden;
-            background: #000;
+            position: fixed; top: 0; left: -5000px; width: 1080px; height: 1920px; z-index: -9999; overflow: hidden;
         }
 
         .export-preview-box {
-            width: 270px; height: 480px;
-            position: relative;
-            border-radius: 24px;
-            overflow: hidden;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.8);
-            background: #111;
+            width: 270px; height: 480px; position: relative; border-radius: 24px;
+            overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.8); background: #111;
         }
 
         .sidebar-panel {
             position: fixed; top: 0; bottom: 0; width: 85%; max-width: 320px;
-            background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(20px); z-index: 100;
+            background: rgba(15, 23, 42, 0.98); backdrop-filter: blur(25px); z-index: 100;
             padding: 2rem 1.5rem; display: flex; flex-direction: column;
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 0 50px rgba(0,0,0,0.8);
         }
-        .sidebar-left { left: 0; border-right: 1px solid rgba(255,255,255,0.1); }
+        .sidebar-left { left: 0; }
         .sidebar-left.closed { transform: translateX(-110%); }
         .sidebar-left.open { transform: translateX(0); }
 
+        .custom-select {
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+            color: white; padding: 10px; border-radius: 14px; width: 100%; font-size: 13px; outline: none;
+        }
+
         .animate-pop { animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         @keyframes pop { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-
-        .custom-select {
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.2);
-            color: white;
-            padding: 10px;
-            border-radius: 14px;
-            width: 100%;
-            font-size: 14px;
-            outline: none;
-        }
     </style>
 </head>
 <body>
@@ -208,7 +150,7 @@
         const LucideIcon = ({ name, size = 24, className = "" }) => {
             useEffect(() => { if (window.lucide) window.lucide.createIcons(); }, [name, size]);
             return (
-                <span className={`inline-flex items-center justify-center overflow-hidden ${className}`} style={{ width: size, height: size }}>
+                <span className={`inline-flex items-center justify-center ${className}`} style={{ width: size, height: size }}>
                     <i data-lucide={name} style={{ width: size, height: size }}></i>
                 </span>
             );
@@ -216,66 +158,52 @@
 
         const BackgroundEffect = ({ type, isDay }) => {
             const elements = useMemo(() => {
-                if (type === 'rain') return Array.from({ length: 60 }).map((_, i) => <div key={i} className="heavy-rain" style={{ left: `${Math.random()*100}%`, animationDuration: `${0.4+Math.random()*0.4}s`, animationDelay: `-${Math.random()}s` }} />);
+                if (type === 'rain') return Array.from({ length: 60 }).map((_, i) => <div key={i} className="heavy-rain" style={{ left: `${Math.random()*100}%`, animationDuration: `${0.4+Math.random()*0.4}s` }} />);
                 if (type === 'snow') return Array.from({ length: 40 }).map((_, i) => <div key={i} className="big-snow" style={{ left: `${Math.random()*100}%`, width: `${4+Math.random()*8}px`, height: `${4+Math.random()*8}px`, animationDuration: `${4+Math.random()*4}s` }} />);
                 return null;
             }, [type]);
             return <div className={`weather-bg-container ${'bg-'+type}`}>{elements}</div>;
         };
 
-        // --- AVATAR OLUŞTURUCU (TÜRKÇE) ---
         const AvatarCreator = ({ onClose, onGenerate }) => {
             const [traits, setTraits] = useState({
-                gender: "Woman", age: "Young Adult", skinTone: "Light", hairColor: "Brown",
-                hairStyle: "Long Wavy", eyeColor: "Brown", clothing: "Casual", mood: "Happy", glasses: "None"
+                gender: "Woman", age: "Young Adult", skinTone: "Light", 
+                hairStyle: "Long Wavy", hairColor: "Brown",
+                eyeColor: "Brown", facialDetail: "None", clothing: "Casual", 
+                clothingColor: "Indigo", accessory: "None", background: "Soft Studio", mood: "Happy"
             });
-
-            const optionsMap = {
-                gender: [ {l:"Kadın", v:"Woman"}, {l:"Erkek", v:"Man"}, {l:"Diğer", v:"Non-binary"} ],
-                age: [ {l:"Çocuk", v:"Child"}, {l:"Genç", v:"Teen"}, {l:"Genç Yetişkin", v:"Young Adult"}, {l:"Yetişkin", v:"Adult"}, {l:"Yaşlı", v:"Elderly"} ],
-                skinTone: [ {l:"Soluk", v:"Pale"}, {l:"Açık", v:"Light"}, {l:"Buğday", v:"Tan"}, {l:"Esmer", v:"Dark"}, {l:"Koyu", v:"Deep"} ],
-                hairColor: [ {l:"Sarı", v:"Blonde"}, {l:"Kahve", v:"Brown"}, {l:"Siyah", v:"Black"}, {l:"Kızıl", v:"Red"}, {l:"Gri", v:"Grey"}, {l:"Pembe", v:"Pink"} ],
-                hairStyle: [ {l:"Kısa", v:"Short"}, {l:"Dalgalı", v:"Long Wavy"}, {l:"Kıvırcık", v:"Curly"}, {l:"Kel", v:"Bald"}, {l:"At Kuyruğu", v:"Ponytail"}, {l:"Subay Traşı", v:"Buzzcut"} ],
-                eyeColor: [ {l:"Mavi", v:"Blue"}, {l:"Yeşil", v:"Green"}, {l:"Kahve", v:"Brown"}, {l:"Siyah", v:"Black"}, {l:"Ela", v:"Hazel"} ],
-                clothing: [ {l:"Günlük", v:"Casual"}, {l:"Resmi", v:"Formal"}, {l:"Spor", v:"Sporty"}, {l:"Kışlık", v:"Winter Gear"}, {l:"Sokak Tarzı", v:"Streetwear"} ],
-                mood: [ {l:"Mutlu", v:"Happy"}, {l:"Havalı", v:"Cool"}, {l:"Ciddi", v:"Serious"}, {l:"Heyecanlı", v:"Excited"}, {l:"Gizemli", v:"Mysterious"} ],
-                glasses: [ {l:"Yok", v:"None"}, {l:"Güneş Gözlüğü", v:"Sunglasses"}, {l:"Gözlük", v:"Reading Glasses"} ]
+            const options = {
+                gender: [{l:"Kadın", v:"Woman"}, {l:"Erkek", v:"Man"}],
+                age: [{l:"Genç", v:"Young Adult"}, {l:"Yetişkin", v:"Adult"}, {l:"Çocuk", v:"Child"}],
+                skinTone: [{l:"Açık", v:"Light"}, {l:"Esmer", v:"Dark"}, {l:"Buğday", v:"Tan"}],
+                hairStyle: [{l:"Uzun Dalgalı", v:"Long Wavy"}, {l:"Kısa", v:"Short Cut"}, {l:"Kıvırcık", v:"Curly"}, {l:"Örgülü", v:"Braids"}],
+                clothing: [{l:"Günlük", v:"Casual"}, {l:"Hoodie", v:"Hoodie"}, {l:"Resmi", v:"Formal"}],
+                mood: [{l:"Mutlu", v:"Happy"}, {l:"Havalı", v:"Cool"}, {l:"Gizemli", v:"Mysterious"}]
             };
-
-            const renderOption = (label, key) => (
+            const renderSel = (label, key, opts) => (
                 <div className="mb-3">
-                    <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">{label}</label>
+                    <label className="text-[10px] font-bold text-indigo-300 uppercase block mb-1">{label}</label>
                     <select className="custom-select" value={traits[key]} onChange={e => setTraits({...traits, [key]: e.target.value})}>
-                        {optionsMap[key].map(o => <option key={o.v} value={o.v}>{o.l}</option>)}
+                        {opts.map(o => <option key={o.v} value={o.v}>{o.l}</option>)}
                     </select>
                 </div>
             );
-
             return (
-                <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
-                    <div className="bg-slate-900 border border-white/10 p-6 rounded-[32px] w-full max-w-md animate-pop max-h-[90vh] overflow-y-auto">
+                <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/90 backdrop-blur-xl p-4">
+                    <div className="bg-slate-900 border border-white/10 p-7 rounded-[40px] w-full max-w-lg animate-pop max-h-[90vh] overflow-y-auto">
                         <div className="flex justify-between items-center mb-6">
-                            <h2 className="text-xl font-black flex gap-2"><LucideIcon name="sparkles" className="text-yellow-400"/> Avatar Tasarla</h2>
-                            <button onClick={onClose} className="p-2 bg-white/5 rounded-full"><LucideIcon name="x" size={20}/></button>
+                            <h2 className="text-xl font-black flex gap-2"><LucideIcon name="sparkles" className="text-yellow-400"/> Karakter Tasarla</h2>
+                            <button onClick={onClose}><LucideIcon name="x"/></button>
                         </div>
-                        <div className="grid grid-cols-2 gap-3">
-                            {renderOption("Cinsiyet", "gender")}
-                            {renderOption("Yaş", "age")}
-                            {renderOption("Ten Rengi", "skinTone")}
-                            {renderOption("Saç Rengi", "hairColor")}
-                            {renderOption("Saç Stili", "hairStyle")}
-                            {renderOption("Göz Rengi", "eyeColor")}
-                            {renderOption("Giyim", "clothing")}
-                            {renderOption("Ruh Hali", "mood")}
+                        <div className="grid grid-cols-2 gap-4">
+                            {renderSel("Cinsiyet", "gender", options.gender)}
+                            {renderSel("Yaş", "age", options.age)}
+                            {renderSel("Ten", "skinTone", options.skinTone)}
+                            {renderSel("Saç", "hairStyle", options.hairStyle)}
+                            {renderSel("Giyim", "clothing", options.clothing)}
+                            {renderSel("Mod", "mood", options.mood)}
                         </div>
-                        {renderOption("Gözlük", "glasses")}
-                        
-                        <button 
-                            onClick={() => { onGenerate(traits); onClose(); }}
-                            className="w-full bg-indigo-600 hover:bg-indigo-500 py-4 rounded-2xl font-black mt-4 shadow-xl active:scale-95 transition-all"
-                        >
-                            AVATARI OLUŞTUR
-                        </button>
+                        <button onClick={() => { onGenerate(traits); onClose(); }} className="w-full bg-indigo-600 py-4 rounded-2xl font-black mt-6">OLUŞTUR</button>
                     </div>
                 </div>
             );
@@ -284,20 +212,22 @@
         const App = () => {
             const [selectedCity, setSelectedCity] = useState(localStorage.getItem('lastCity') || "Eskişehir");
             const [weather, setWeather] = useState(null);
-            const [hourly, setHourly] = useState([]);
+            const [fullHourly, setFullHourly] = useState([]);
+            const [viewDayIndex, setViewDayIndex] = useState(0);
             const [forecast, setForecast] = useState([]);
             const [avatar, setAvatar] = useState(localStorage.getItem('userAvatar') || null);
-            const [avatarLoading, setAvatarLoading] = useState(false);
-            const [showAvatarModal, setShowAvatarModal] = useState(false);
-            const [showExportEditor, setShowExportEditor] = useState(false);
-            const [panels, setPanels] = useState({ fav: false, forecast: false });
+            const [loading, setLoading] = useState(false);
+            const [panels, setPanels] = useState({ fav: false, forecast: false, editor: false, avatar: false });
             const [favs, setFavs] = useState(JSON.parse(localStorage.getItem('favCities') || '[]'));
 
             const [layout, setLayout] = useState({
-                cityPos: 350, tempPos: 650, infoPos: 1100, textColor: "#ffffff", showAdvice: true
+                cityY: 250, iconY: 550, tempY: 780, infoY: 1150, dateY: 1750,
+                showCity: true, showIcon: true, showTemp: true, showInfo: true, showDate: true,
+                textColor: "#ffffff"
             });
 
             const fetchWeather = async (city) => {
+                setLoading(true);
                 try {
                     const geo = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${city}&count=1&language=tr&format=json`).then(r=>r.json());
                     if (!geo.results) return;
@@ -315,70 +245,49 @@
                         uv: w.daily.uv_index_max[0]
                     });
 
-                    const nowIndex = new Date().getHours();
-                    setHourly(w.hourly.time.slice(nowIndex, nowIndex + 24).map((t, i) => ({
+                    setFullHourly(w.hourly.time.map((t, i) => ({
                         time: t.split('T')[1],
-                        temp: Math.round(w.hourly.temperature_2m[nowIndex + i]),
-                        icon: getWeatherInfo(w.hourly.weather_code[nowIndex + i]).i
+                        temp: Math.round(w.hourly.temperature_2m[i]),
+                        icon: getWeatherInfo(w.hourly.weather_code[i]).i
                     })));
 
                     setForecast(w.daily.time.map((t, i) => ({
+                        date: t,
                         day: new Date(t).toLocaleDateString('tr-TR', { weekday: 'short' }),
                         max: Math.round(w.daily.temperature_2m_max[i]),
                         min: Math.round(w.daily.temperature_2m_min[i]),
                         icon: getWeatherInfo(w.daily.weather_code[i]).i
                     })));
-
+                    setViewDayIndex(0);
                     localStorage.setItem('lastCity', city);
-                } catch (e) { console.error(e); }
+                } catch (e) { console.error(e); } finally { setLoading(false); }
             };
 
-            const toggleFav = () => {
-                const n = favs.includes(selectedCity) ? favs.filter(c => c !== selectedCity) : [...favs, selectedCity];
-                setFavs(n);
-                localStorage.setItem('favCities', JSON.stringify(n));
-            };
+            const currentHourly = useMemo(() => {
+                return fullHourly.slice(viewDayIndex * 24, (viewDayIndex + 1) * 24);
+            }, [fullHourly, viewDayIndex]);
 
             const generateAvatar = (traits) => {
-                setAvatarLoading(true);
-                const prompt = `cute 3d character portrait, ${traits.age} ${traits.gender}, ${traits.skinTone} skin, ${traits.hairStyle} ${traits.hairColor} hair, ${traits.eyeColor} eyes, ${traits.mood} expression, wearing ${traits.clothing}, ${traits.glasses} glasses, soft lighting, 3d render, clay style, pixar style, solid background --no text`;
-                const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=1080&height=1920&nologo=true&seed=${Math.floor(Math.random()*99999)}`;
-                
-                const img = new Image();
-                img.crossOrigin = "anonymous";
-                img.onload = () => { 
-                    setAvatar(url); 
-                    localStorage.setItem('userAvatar', url); 
-                    setAvatarLoading(false); 
-                };
+                const prompt = `3d character portrait, ${traits.age} ${traits.gender}, ${traits.skinTone} skin, ${traits.hairStyle} hair, ${traits.mood} expression, wearing ${traits.clothing}, 3d render, clay style, nologo --no text`;
+                const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=1080&height=1920&nologo=true&seed=${Math.random()}`;
+                const img = new Image(); img.crossOrigin = "anonymous";
+                img.onload = () => { setAvatar(url); localStorage.setItem('userAvatar', url); };
                 img.src = url;
             };
 
-            const finalDownload = () => {
+            const download = () => {
                 const el = document.getElementById('profile-export-container');
                 el.style.left = "0px";
-                
-                // İndirme sorununu gidermek için gecikme ve ölçekleme ayarı
                 setTimeout(() => {
-                    html2canvas(el, { 
-                        scale: 2, 
-                        useCORS: true, 
-                        allowTaint: false,
-                        backgroundColor: "#000",
-                        width: 1080,
-                        height: 1920
-                    }).then(canvas => {
+                    html2canvas(el, { scale: 2, useCORS: true, width: 1080, height: 1920 }).then(canvas => {
                         const l = document.createElement('a');
-                        l.download = `${selectedCity}_HavaDurumuStory.png`;
+                        l.download = `${selectedCity}_Story.png`;
                         l.href = canvas.toDataURL("image/png");
                         l.click();
-                        el.style.left = "-3000px";
-                        setShowExportEditor(false);
-                    }).catch(err => {
-                        console.error("İndirme Hatası:", err);
-                        el.style.left = "-3000px";
+                        el.style.left = "-5000px";
+                        setPanels({...panels, editor: false});
                     });
-                }, 500);
+                }, 800);
             };
 
             useEffect(() => { fetchWeather(selectedCity); }, []);
@@ -389,209 +298,143 @@
                 <div className="w-full h-full flex flex-col">
                     <div className="bg-layer">{weather && <BackgroundEffect type={wInfo.type} isDay={weather.isDay} />}</div>
                     
-                    {/* SAĞ ÜST AVATAR */}
-                    {avatar && (
-                        <div className="fixed top-6 right-6 z-[50] animate-pop">
-                            <div className="w-16 h-16 rounded-2xl border-2 border-white/30 overflow-hidden shadow-2xl bg-slate-800 relative group">
-                                <img src={avatar} className={`w-full h-full object-cover ${avatarLoading ? 'opacity-20' : 'opacity-100'}`} crossOrigin="anonymous"/>
-                                {avatarLoading && <div className="absolute inset-0 flex items-center justify-center"><LucideIcon name="loader-2" className="animate-spin text-white" size={24}/></div>}
-                                <button onClick={()=>{setAvatar(null); localStorage.removeItem('userAvatar');}} className="absolute inset-0 bg-red-600/80 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                                    <LucideIcon name="trash-2" size={20}/>
-                                </button>
-                            </div>
-                        </div>
-                    )}
-
                     <div className="content-layer">
-                        {/* Arama Barı */}
                         <div className="search-container animate-pop mt-4">
                             <button onClick={() => setPanels({...panels, fav: true})} className="glass-bar p-3"><LucideIcon name="menu" /></button>
-                            <select 
-                                value={selectedCity} 
-                                onChange={(e) => { setSelectedCity(e.target.value); fetchWeather(e.target.value); }}
-                                className="flex-1 bg-transparent border-none outline-none font-black text-white text-center text-lg appearance-none cursor-pointer"
-                            >
-                                {TR_CITIES.map(c => <option key={c} value={c} className="text-black">{c}</option>)}
-                            </select>
-                            <button onClick={toggleFav} className={`glass-bar p-3 ${favs.includes(selectedCity) ? 'text-yellow-500' : 'text-gray-400'}`}>
-                                <LucideIcon name="star" className={favs.includes(selectedCity) ? "fill-yellow-500" : ""}/>
-                            </button>
+                            <select value={selectedCity} onChange={e => { setSelectedCity(e.target.value); fetchWeather(e.target.value); }} className="flex-1 bg-transparent border-none outline-none font-black text-white text-center text-lg appearance-none cursor-pointer">{TR_CITIES.map(c => <option key={c} value={c} className="text-black">{c}</option>)}</select>
+                            <button onClick={() => { const n = favs.includes(selectedCity) ? favs.filter(c => c !== selectedCity) : [...favs, selectedCity]; setFavs(n); localStorage.setItem('favCities', JSON.stringify(n)); }} className={`glass-bar p-3 ${favs.includes(selectedCity) ? 'text-yellow-500' : 'text-gray-400'}`}><LucideIcon name="star" className={favs.includes(selectedCity) ? "fill-yellow-500" : ""}/></button>
                         </div>
 
-                        {/* Ana Kart */}
                         <div className="weather-card animate-pop">
+                            {avatar && (
+                                <div className="avatar-badge group">
+                                    <img src={avatar} className="w-full h-full object-cover" crossOrigin="anonymous"/>
+                                    <button onClick={() => { setAvatar(null); localStorage.removeItem('userAvatar'); }} className="absolute inset-0 bg-red-600/90 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"><LucideIcon name="trash-2" size={24}/></button>
+                                </div>
+                            )}
                             {weather ? (
                                 <div>
-                                    <h1 className="text-5xl font-black mb-4 drop-shadow-lg">{weather.city}</h1>
+                                    <h1 className="text-5xl font-black mb-4 tracking-tighter">{weather.city}</h1>
                                     <div className="flex items-center justify-center gap-6 mb-6">
                                         <LucideIcon name={wInfo.i} size={84} className="text-white drop-shadow-xl" />
-                                        <div className="text-left">
-                                            <span className="text-8xl font-black block leading-none">{weather.temp}°</span>
-                                            <span className="text-lg font-bold opacity-70 italic">Hissedilen: {weather.feels}°</span>
-                                        </div>
+                                        <div className="text-left"><span className="text-8xl font-black block leading-none">{weather.temp}°</span><span className="text-lg font-bold opacity-70 italic">Hissedilen: {weather.feels}°</span></div>
                                     </div>
-                                    <div className="bg-black/20 p-4 rounded-3xl flex justify-around text-xs font-bold border border-white/5">
-                                        <div className="flex flex-col"><p className="opacity-50 mb-1">NEM</p><span>%{weather.humidity}</span></div>
-                                        <div className="flex flex-col"><p className="opacity-50 mb-1">RÜZGAR</p><span>{weather.wind} km/s</span></div>
-                                        <div className="flex flex-col"><p className="opacity-50 mb-1">UV</p><span>{weather.uv}</span></div>
+                                    <div className="bg-black/25 p-4 rounded-3xl flex justify-around text-xs font-bold border border-white/10">
+                                        <div><p className="opacity-40 mb-1">NEM</p><span>%{weather.humidity}</span></div>
+                                        <div><p className="opacity-40 mb-1">RÜZGAR</p><span>{weather.wind} km/s</span></div>
+                                        <div><p className="opacity-40 mb-1">UV</p><span>{weather.uv}</span></div>
                                     </div>
                                 </div>
-                            ) : <div className="p-10 animate-pulse font-black text-xl">Şehir Verileri Alınıyor...</div>}
+                            ) : <div className="p-10 animate-pulse font-black">Yükleniyor...</div>}
                         </div>
 
-                        {/* Saatlik Tahmin (Geliştirilmiş) */}
                         <div className="flex flex-col w-full items-center">
-                            <div className="w-[92%] max-w-[520px] mb-2 px-4 flex justify-between items-center opacity-70">
-                                <span className="text-xs font-black tracking-widest uppercase">24 Saatlik Tahmin</span>
-                                <LucideIcon name="clock" size={14}/>
+                            <div className="w-[92%] max-w-[520px] mb-3 px-6 flex justify-between items-center opacity-60">
+                                <span className="text-[10px] font-black uppercase tracking-widest">{viewDayIndex === 0 ? "Bugün" : forecast[viewDayIndex]?.day} - 24 Saatlik Akış</span>
+                                <LucideIcon name="clock" size={12}/>
                             </div>
                             <div className="hourly-scroll">
-                                {hourly.map((h, i) => (
+                                {currentHourly.map((h, i) => (
                                     <div key={i} className="hourly-item">
-                                        <span className="text-[10px] font-bold opacity-60 mb-2">{h.time}</span>
-                                        <LucideIcon name={h.icon} size={32} className="mb-2 text-white" />
-                                        <span className="font-black text-xl">{h.temp}°</span>
+                                        <span className="text-[10px] font-bold opacity-50 mb-3">{h.time}</span>
+                                        <LucideIcon name={h.icon} size={36} className="mb-3 text-white" />
+                                        <span className="font-black text-2xl">{h.temp}°</span>
                                     </div>
                                 ))}
                             </div>
                         </div>
 
-                        {/* Alt Butonlar */}
-                        <div className="flex gap-6 my-8">
+                        <div className="flex gap-7 my-8">
                             <button onClick={() => setPanels({...panels, forecast: true})} className="glass-bar w-16 h-16"><LucideIcon name="calendar" size={28}/></button>
-                            <button onClick={() => setShowAvatarModal(true)} className="glass-bar w-16 h-16 text-indigo-600"><LucideIcon name="user-plus" size={28}/></button>
-                            <button onClick={() => setShowExportEditor(true)} className="glass-bar w-16 h-16 text-pink-600 shadow-pink-500/20 shadow-lg"><LucideIcon name="instagram" size={28}/></button>
+                            <button onClick={() => setPanels({...panels, avatar: true})} className="glass-bar w-16 h-16 text-indigo-600"><LucideIcon name="user-plus" size={28}/></button>
+                            <button onClick={() => setPanels({...panels, editor: true})} className="glass-bar w-16 h-16 text-pink-600"><LucideIcon name="instagram" size={28}/></button>
                         </div>
                     </div>
 
-                    {/* FAVORİLER PANELİ */}
+                    {/* FAVORİLER */}
                     <div className={`sidebar-panel sidebar-left ${panels.fav ? 'open' : 'closed'}`}>
-                        <div className="flex justify-between items-center mb-8">
-                            <h2 className="text-2xl font-black">Favori Şehirler</h2>
-                            <button onClick={() => setPanels({...panels, fav: false})} className="p-2 bg-white/5 rounded-xl"><LucideIcon name="x"/></button>
-                        </div>
-                        <div className="space-y-3">
-                            {favs.length === 0 && <p className="text-white/40 italic text-center p-10">Henüz favori eklenmedi.</p>}
-                            {favs.map(c => (
-                                <div key={c} className="bg-white/5 p-5 rounded-2xl flex justify-between items-center hover:bg-white/10 cursor-pointer border border-white/5 transition-colors" onClick={() => { setSelectedCity(c); fetchWeather(c); setPanels({...panels, fav:false}); }}>
-                                    <span className="font-bold text-lg">{c}</span>
-                                    <LucideIcon name="chevron-right" size={20} className="text-white/30"/>
-                                </div>
-                            ))}
+                        <div className="flex justify-between items-center mb-10"><h2 className="text-3xl font-black">Şehirlerim</h2><button onClick={() => setPanels({...panels, fav: false})}><LucideIcon name="x"/></button></div>
+                        <div className="space-y-4">
+                            {favs.map(c => <div key={c} className="bg-white/5 p-6 rounded-[28px] flex justify-between items-center cursor-pointer border border-white/5" onClick={() => { setSelectedCity(c); fetchWeather(c); setPanels({...panels, fav:false}); }}><span className="font-bold text-xl">{c}</span><LucideIcon name="chevron-right" size={20}/></div>)}
                         </div>
                     </div>
 
-                    {/* TAHMİN PANELİ */}
-                    <div className={`fixed inset-0 z-[100] transition-all duration-300 ${panels.forecast ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
-                        <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => setPanels({...panels, forecast: false})}></div>
-                        <div className={`absolute bottom-0 w-full bg-slate-900 p-8 rounded-t-[40px] border-t border-white/10 shadow-2xl transition-transform duration-500 ${panels.forecast ? 'translate-y-0' : 'translate-y-full'}`}>
-                             <div className="w-16 h-1.5 bg-white/20 mx-auto mb-6 rounded-full"></div>
-                             <h2 className="text-2xl font-black mb-8 flex items-center gap-3"><LucideIcon name="calendar-days" className="text-blue-400"/> Haftalık Tahmin</h2>
-                             <div className="space-y-3 max-h-[50vh] overflow-y-auto pr-2">
+                    {/* TAHMİN & GÜN SEÇİMİ */}
+                    <div className={`fixed inset-0 z-[100] transition-all ${panels.forecast ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
+                        <div className="absolute inset-0 bg-black/85 backdrop-blur-md" onClick={() => setPanels({...panels, forecast: false})}></div>
+                        <div className={`absolute bottom-0 w-full bg-slate-900 p-8 rounded-t-[50px] transition-transform duration-500 ${panels.forecast ? 'translate-y-0' : 'translate-y-full'}`}>
+                             <h2 className="text-3xl font-black mb-10">7 Günlük Tahmin</h2>
+                             <div className="space-y-4 max-h-[60vh] overflow-y-auto">
                                 {forecast.map((d, i) => (
-                                    <div key={i} className="flex items-center justify-between p-5 bg-white/5 rounded-3xl border border-white/5">
-                                        <span className="font-bold w-16 text-lg">{d.day}</span>
-                                        <LucideIcon name={d.icon} size={32} className="text-blue-200" />
-                                        <div className="font-black text-right"><span className="text-xl text-white">{d.max}°</span> <span className="text-base text-white/40 ml-3">{d.min}°</span></div>
+                                    <div key={i} className={`flex items-center justify-between p-6 rounded-[32px] border transition-all cursor-pointer ${viewDayIndex === i ? 'bg-indigo-600/30 border-indigo-500' : 'bg-white/5 border-white/5'}`} onClick={() => { setViewDayIndex(i); setPanels({...panels, forecast: false}); }}>
+                                        <span className="font-bold w-20 text-xl">{d.day}</span>
+                                        <LucideIcon name={d.icon} size={36} />
+                                        <div className="font-black text-right"><span className="text-2xl">{d.max}°</span> <span className="text-lg opacity-30 ml-4">{d.min}°</span></div>
                                     </div>
                                 ))}
                              </div>
                         </div>
                     </div>
 
-                    {/* HİKAYE DÜZENLEYİCİ */}
-                    {showExportEditor && (
+                    {/* STORY EDİTÖRÜ */}
+                    {panels.editor && (
                         <div className="fixed inset-0 z-[300] bg-slate-950 flex flex-col md:flex-row p-6 overflow-y-auto">
                             <div className="flex-1 flex items-center justify-center p-4">
                                 <div className="export-preview-box">
                                      <div className="w-full h-full relative" style={{background: '#000'}}>
-                                         {avatar ? (
-                                             <img src={avatar} className="absolute inset-0 w-full h-full object-cover" crossOrigin="anonymous" />
-                                         ) : (
-                                             <div className="absolute inset-0" style={{background: weather?.isDay ? '#0284c7' : '#1e293b'}}></div>
-                                         )}
-                                         <div className="absolute inset-0 bg-black/20"></div>
-                                         <div className="absolute w-full text-center" style={{top: layout.cityPos/4, color: layout.textColor}}>
-                                             <p className="text-[10px] font-black uppercase opacity-80 mb-1 drop-shadow-md">HavaDurumuhd</p>
-                                             <h1 className="text-4xl font-black uppercase drop-shadow-xl tracking-tighter">{weather?.city}</h1>
-                                         </div>
-                                         <div className="absolute w-full flex flex-col items-center" style={{top: layout.tempPos/4, color: layout.textColor}}>
-                                             <LucideIcon name={wInfo.i} size={70} className="mb-2 drop-shadow-xl"/>
-                                             <span className="text-7xl font-black leading-none drop-shadow-2xl">{weather?.temp}°</span>
-                                         </div>
-                                         <div className="absolute w-full flex flex-col items-center" style={{top: layout.infoPos/4}}>
-                                             <div className="bg-black/30 p-5 rounded-[28px] w-[85%] text-center backdrop-blur-xl border border-white/10 shadow-2xl">
-                                                 <p className="text-xl font-black uppercase tracking-widest mb-1" style={{color: layout.textColor}}>{wInfo.t}</p>
-                                                 {layout.showAdvice && <p className="text-[9px] font-bold opacity-90 leading-tight" style={{color: layout.textColor}}>{wInfo.advice}</p>}
-                                             </div>
-                                         </div>
+                                         {avatar ? <img src={avatar} className="absolute inset-0 w-full h-full object-cover" crossOrigin="anonymous" /> : <div className="absolute inset-0" style={{background: weather?.isDay ? '#0284c7' : '#1e293b'}}></div>}
+                                         <div className="absolute inset-0 bg-black/30"></div>
+                                         {layout.showCity && <div className="absolute w-full text-center" style={{top: layout.cityY/4, color: layout.textColor}}><h1 className="text-4xl font-black uppercase">{weather?.city}</h1></div>}
+                                         {layout.showIcon && <div className="absolute w-full flex justify-center" style={{top: layout.iconY/4, color: layout.textColor}}><LucideIcon name={wInfo.i} size={80}/></div>}
+                                         {layout.showTemp && <div className="absolute w-full text-center" style={{top: layout.tempY/4, color: layout.textColor}}><span className="text-8xl font-black">{weather?.temp}°</span></div>}
+                                         {layout.showInfo && <div className="absolute w-full flex flex-col items-center" style={{top: layout.infoY/4}}><div className="bg-black/40 p-4 rounded-[28px] w-[85%] text-center backdrop-blur-xl border border-white/10"><p className="text-xl font-black uppercase mb-1" style={{color: layout.textColor}}>{wInfo.t}</p></div></div>}
+                                         {layout.showDate && <div className="absolute bottom-10 w-full text-center text-[10px] font-black opacity-60 uppercase tracking-widest">{new Date(forecast[viewDayIndex]?.date).toLocaleDateString('tr-TR')}</div>}
                                      </div>
                                 </div>
                             </div>
-                            
-                            <div className="w-full md:w-80 bg-slate-900 rounded-[35px] p-6 border border-white/10 shadow-2xl">
-                                <h3 className="text-xl font-black mb-8 flex gap-2"><LucideIcon name="sliders" className="text-pink-500"/> Tasarımı Ayarla</h3>
-                                
+                            <div className="w-full md:w-96 bg-slate-900 rounded-[40px] p-8 border border-white/10 shadow-2xl">
+                                <h3 className="text-2xl font-black mb-8 flex gap-3"><LucideIcon name="layout" className="text-pink-500"/> Editör</h3>
                                 <div className="space-y-6">
-                                    <div>
-                                        <label className="text-[10px] font-bold opacity-50 block mb-2 uppercase tracking-widest">Şehir İsmi Yüksekliği</label>
-                                        <input type="range" min="100" max="800" value={layout.cityPos} onChange={e=>setLayout({...layout, cityPos: parseInt(e.target.value)})} className="w-full h-1.5 bg-indigo-900 rounded-lg appearance-none cursor-pointer" />
+                                    {[{l:"Şehir Y", k:"cityY", s:"showCity"}, {l:"İkon Y", k:"iconY", s:"showIcon"}, {l:"Sıcaklık Y", k:"tempY", s:"showTemp"}, {l:"Bilgi Y", k:"infoY", s:"showInfo"}].map(item => (
+                                        <div key={item.k}>
+                                            <div className="flex justify-between items-center mb-2">
+                                                <label className="text-[10px] font-black opacity-50 uppercase tracking-widest">{item.l}</label>
+                                                <button onClick={() => setLayout({...layout, [item.s]: !layout[item.s]})} className={`p-1 rounded-lg ${layout[item.s] ? 'bg-indigo-600' : 'bg-slate-700'}`}><LucideIcon name={layout[item.s] ? "eye" : "eye-off"} size={14}/></button>
+                                            </div>
+                                            <input type="range" min="50" max="1800" value={layout[item.k]} onChange={e=>setLayout({...layout, [item.k]: parseInt(e.target.value)})} className="w-full h-1.5 bg-indigo-900 rounded-lg appearance-none cursor-pointer" />
+                                        </div>
+                                    ))}
+                                    <div className="flex gap-2">
+                                        <button onClick={() => setLayout({...layout, showCity:false, showIcon:false, showTemp:false, showInfo:false, showDate:false})} className="flex-1 py-3 bg-red-600/20 text-red-500 font-bold rounded-xl text-xs">HEPSİNİ KALDIR</button>
+                                        <button onClick={() => setLayout({...layout, showCity:true, showIcon:true, showTemp:true, showInfo:true, showDate:true})} className="flex-1 py-3 bg-green-600/20 text-green-500 font-bold rounded-xl text-xs">HEPSİNİ GETİR</button>
                                     </div>
-                                    <div>
-                                        <label className="text-[10px] font-bold opacity-50 block mb-2 uppercase tracking-widest">Sıcaklık Yüksekliği</label>
-                                        <input type="range" min="400" max="1200" value={layout.tempPos} onChange={e=>setLayout({...layout, tempPos: parseInt(e.target.value)})} className="w-full h-1.5 bg-indigo-900 rounded-lg appearance-none cursor-pointer" />
+                                    <div className="flex gap-2">
+                                        <button onClick={()=>setLayout({...layout, textColor:"#fff"})} className="flex-1 py-3 bg-white text-black font-bold rounded-xl text-xs">BEYAZ</button>
+                                        <button onClick={()=>setLayout({...layout, textColor:"#000"})} className="flex-1 py-3 bg-slate-400 text-black font-bold rounded-xl text-xs">SİYAH</button>
                                     </div>
-                                    <div>
-                                        <label className="text-[10px] font-bold opacity-50 block mb-2 uppercase tracking-widest">Kart Yüksekliği</label>
-                                        <input type="range" min="800" max="1700" value={layout.infoPos} onChange={e=>setLayout({...layout, infoPos: parseInt(e.target.value)})} className="w-full h-1.5 bg-indigo-900 rounded-lg appearance-none cursor-pointer" />
-                                    </div>
-                                    <div className="flex gap-2 pt-4">
-                                        <button onClick={()=>setLayout({...layout, textColor: "#ffffff"})} className="flex-1 py-3 bg-white text-black font-black rounded-xl text-xs shadow-lg active:scale-95 transition-all">BEYAZ METİN</button>
-                                        <button onClick={()=>setLayout({...layout, textColor: "#000000"})} className="flex-1 py-3 bg-slate-400 text-black font-black rounded-xl text-xs shadow-lg active:scale-95 transition-all">SİYAH METİN</button>
-                                    </div>
-                                    <button onClick={()=>setLayout({...layout, showAdvice: !layout.showAdvice})} className="w-full py-3 bg-white/5 hover:bg-white/10 rounded-xl text-xs font-black transition-colors">
-                                        TAVSİYEYİ {layout.showAdvice ? 'GİZLE' : 'GÖSTER'}
-                                    </button>
                                 </div>
-
-                                <div className="flex gap-3 mt-12">
-                                    <button onClick={()=>setShowExportEditor(false)} className="flex-1 bg-white/5 py-4 rounded-2xl font-bold border border-white/5">İptal</button>
-                                    <button onClick={finalDownload} className="flex-[2] bg-pink-600 hover:bg-pink-500 py-4 rounded-2xl font-black shadow-pink-600/30 shadow-xl active:scale-95 transition-all">İNDİR</button>
+                                <div className="flex gap-4 mt-10">
+                                    <button onClick={()=>setPanels({...panels, editor: false})} className="flex-1 py-5 bg-white/5 rounded-3xl font-bold">İptal</button>
+                                    <button onClick={download} className="flex-[2] bg-gradient-to-r from-pink-600 to-rose-600 py-5 rounded-3xl font-black">İNDİR</button>
                                 </div>
                             </div>
                         </div>
                     )}
 
-                    {showAvatarModal && <AvatarCreator onClose={()=>setShowAvatarModal(false)} onGenerate={generateAvatar} />}
+                    {panels.avatar && <AvatarCreator onClose={() => setPanels({...panels, avatar: false})} onGenerate={generateAvatar} />}
 
-                    {/* STORY EXPORT (ASIL KATMAN) */}
+                    {/* EXPORT CONTAINER (ASIL) */}
                     <div id="profile-export-container">
-                        <div className="absolute inset-0 w-full h-full">
-                             {avatar ? (
-                                 <img src={avatar} className="absolute inset-0 w-full h-full object-cover" crossOrigin="anonymous" />
-                             ) : (
-                                 <div className="absolute inset-0" style={{background: weather?.isDay ? '#0284c7' : '#1e293b'}}></div>
-                             )}
-                             <div className="absolute inset-0 bg-black/20"></div>
+                        <div style={{position:'absolute', inset:0, width:'1080px', height:'1920px'}}>
+                             {avatar ? <img src={avatar} style={{position:'absolute', inset:0, width:'100%', height:'100%', objectFit:'cover'}} crossOrigin="anonymous" /> : <div style={{position:'absolute', inset:0, width:'100%', height:'100%', background: weather?.isDay ? '#0284c7' : '#1e293b'}}></div>}
+                             <div style={{position:'absolute', inset:0, width:'100%', height:'100%', background: 'rgba(0,0,0,0.3)'}}></div>
                         </div>
-                        <div className="relative z-10 h-full w-full">
-                            <div className="absolute w-full text-center" style={{top: layout.cityPos, color: layout.textColor}}>
-                                <p className="text-5xl font-black tracking-[0.6em] opacity-90 mb-10 uppercase drop-shadow-2xl">HavaDurumuhd</p>
-                                <h1 className="text-[170px] font-black uppercase drop-shadow-2xl tracking-tighter leading-none">{weather?.city}</h1>
-                            </div>
-                            <div className="absolute w-full flex flex-col items-center" style={{top: layout.tempPos, color: layout.textColor}}>
-                                <LucideIcon name={wInfo.i} size={320} className="mb-14 drop-shadow-2xl"/>
-                                <span className="text-[440px] font-black leading-none drop-shadow-2xl tracking-tighter">{weather?.temp}°</span>
-                            </div>
-                            <div className="absolute w-full flex flex-col items-center" style={{top: layout.infoPos}}>
-                                <div className="bg-black/40 backdrop-blur-3xl px-20 py-16 rounded-[100px] border border-white/20 w-[90%] shadow-2xl">
-                                    <p className="text-[100px] font-black uppercase tracking-[20px] mb-8 text-center leading-none" style={{color: layout.textColor}}>{wInfo.t}</p>
-                                    {layout.showAdvice && <p className="text-6xl font-black italic opacity-90 text-center leading-tight" style={{color: layout.textColor}}>"{wInfo.advice}"</p>}
-                                </div>
-                            </div>
-                            <div className="absolute bottom-24 w-full text-center text-4xl font-black opacity-60 tracking-[15px] uppercase">
-                                {new Date().toLocaleDateString('tr-TR', { day:'numeric', month:'long', year:'numeric' })}
-                            </div>
+                        <div style={{position:'relative', zIndex:10, height:'100%', width:'100%'}}>
+                            {layout.showCity && <div style={{position:'absolute', width:'100%', textAlign:'center', top: `${layout.cityY}px`, color: layout.textColor}}><h1 style={{fontSize:'160px', fontWeight:900, textTransform:'uppercase'}}>{weather?.city}</h1></div>}
+                            {layout.showIcon && <div style={{position:'absolute', width:'100%', display:'flex', justifyContent:'center', top: `${layout.iconY}px`, color: layout.textColor}}><LucideIcon name={wInfo.i} size={350} /></div>}
+                            {layout.showTemp && <div style={{position:'absolute', width:'100%', textAlign:'center', top: `${layout.tempY}px`, color: layout.textColor}}><span style={{fontSize:'450px', fontWeight:900}}>{weather?.temp}°</span></div>}
+                            {layout.showInfo && <div style={{position:'absolute', width:'100%', display:'flex', justifyContent:'center', top: `${layout.infoY}px`}}><div style={{background:'rgba(0,0,0,0.45)', backdropFilter:'blur(40px)', padding:'60px 40px', borderRadius:'100px', width:'900px', textAlign:'center', border:'2px solid rgba(255,255,255,0.2)'}}><p style={{fontSize:'110px', fontWeight:900, textTransform:'uppercase', color: layout.textColor}}>{wInfo.t}</p></div></div>}
+                            {layout.showDate && <div style={{position:'absolute', bottom:'80px', width:'100%', textAlign:'center', fontSize:'40px', fontWeight:900, opacity:0.6, letterSpacing:'20px'}}>{new Date(forecast[viewDayIndex]?.date).toLocaleDateString('tr-TR')}</div>}
                         </div>
                     </div>
                 </div>
