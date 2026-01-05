@@ -92,23 +92,30 @@
             width: 92%;
             max-width: 480px;
             display: flex;
-            gap: 15px;
+            gap: 12px;
             overflow-x: auto;
-            padding: 15px 5px;
+            padding: 10px 5px 20px 5px;
             scrollbar-width: none;
         }
         .hourly-scroll::-webkit-scrollbar { display: none; }
 
         .hourly-item {
-            min-width: 75px;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 12px;
+            min-width: 85px;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(12px);
+            border-radius: 24px;
+            padding: 16px 10px;
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
             border: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.3s ease;
+        }
+        .hourly-item:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-5px);
+            border-color: rgba(255,255,255,0.3);
         }
 
         .glass-bar {
@@ -117,6 +124,9 @@
             border-radius: 9999px;
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
             transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .glass-bar:active { transform: scale(0.92); }
 
@@ -167,8 +177,12 @@
         };
 
         const LucideIcon = ({ name, size = 24, className = "" }) => {
-            useEffect(() => { if (window.lucide) window.lucide.createIcons(); }, [name]);
-            return <i data-lucide={name} style={{ width: size, height: size }} className={className}></i>;
+            useEffect(() => { if (window.lucide) window.lucide.createIcons(); }, [name, size]);
+            return (
+                <span className={`inline-flex items-center justify-center overflow-hidden ${className}`} style={{ width: size, height: size }}>
+                    <i data-lucide={name} style={{ width: size, height: size }}></i>
+                </span>
+            );
         };
 
         const BackgroundEffect = ({ type, isDay }) => {
@@ -213,12 +227,18 @@
                     });
 
                     // Saatlik tahmin (Önümüzdeki 24 saat)
-                    const nowIndex = new Date().getHours();
-                    const next24 = w.hourly.time.slice(nowIndex, nowIndex + 24).map((t, i) => ({
-                        time: t.split('T')[1],
-                        temp: Math.round(w.hourly.temperature_2m[nowIndex + i]),
-                        icon: getWeatherInfo(w.hourly.weather_code[nowIndex + i]).i
-                    }));
+                    const now = new Date();
+                    const currentHour = now.getHours();
+                    
+                    // Veriyi daha temiz çekiyoruz
+                    const next24 = w.hourly.time.slice(currentHour, currentHour + 24).map((t, i) => {
+                        const timeStr = t.split('T')[1]; // "14:00"
+                        return {
+                            time: timeStr,
+                            temp: Math.round(w.hourly.temperature_2m[currentHour + i]),
+                            icon: getWeatherInfo(w.hourly.weather_code[currentHour + i]).i
+                        };
+                    });
                     setHourly(next24);
 
                     setForecast(w.daily.time.map((t, i) => ({
@@ -239,9 +259,13 @@
                         fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${pos.coords.latitude}&longitude=${pos.coords.longitude}&localityLanguage=tr`)
                         .then(r=>r.json()).then(data => {
                             const city = data.city || data.principalSubdivision;
-                            setSelectedCity(city);
-                            fetchWeather(city);
+                            if (city) {
+                                setSelectedCity(city);
+                                fetchWeather(city);
+                            }
                         });
+                    }, (err) => {
+                        console.warn("Konum erişimi reddedildi.");
                     });
                 }
             };
@@ -253,9 +277,9 @@
             const downloadStory = () => {
                 const el = document.getElementById('profile-export-container');
                 el.style.left = "0px";
-                html2canvas(el, { scale: 2, useCORS: true }).then(canvas => {
+                html2canvas(el, { scale: 2, useCORS: true, backgroundColor: "#0f172a" }).then(canvas => {
                     const link = document.createElement('a');
-                    link.download = `${selectedCity}_Story.png`;
+                    link.download = `${selectedCity}_HavaDurumu.png`;
                     link.href = canvas.toDataURL();
                     link.click();
                     el.style.left = "-2000px";
@@ -263,21 +287,23 @@
             };
 
             return (
-                <div className="w-full h-full flex flex-col">
+                <div className="w-full h-full flex flex-col overflow-hidden">
                     <div className="bg-layer">{weather && <BackgroundEffect type={wInfo.type} isDay={weather.isDay} />}</div>
                     
                     <div className="content-layer">
                         {/* Arama Barı */}
                         <div className="search-container animate-pop">
-                            <button onClick={detectLocation} className="glass-bar p-3 text-blue-600"><LucideIcon name="map-pin" /></button>
-                            <select 
-                                value={selectedCity} 
-                                onChange={(e) => { setSelectedCity(e.target.value); fetchWeather(e.target.value); }}
-                                className="flex-1 bg-transparent border-none outline-none font-black text-gray-100 text-center text-lg appearance-none cursor-pointer"
-                            >
-                                {TR_CITIES.map(c => <option key={c} value={c} className="text-black">{c}</option>)}
-                            </select>
-                            <button onClick={() => setPanels({...panels, fav: true})} className="glass-bar p-3"><LucideIcon name="list" /></button>
+                            <button onClick={detectLocation} className="glass-bar p-3 text-blue-600" title="Konumumu Bul"><LucideIcon name="map-pin" /></button>
+                            <div className="flex-1 relative">
+                                <select 
+                                    value={selectedCity} 
+                                    onChange={(e) => { setSelectedCity(e.target.value); fetchWeather(e.target.value); }}
+                                    className="w-full bg-transparent border-none outline-none font-black text-gray-100 text-center text-lg appearance-none cursor-pointer"
+                                >
+                                    {TR_CITIES.map(c => <option key={c} value={c} className="text-black">{c}</option>)}
+                                </select>
+                            </div>
+                            <button onClick={() => setPanels({...panels, fav: true})} className="glass-bar p-3" title="Favoriler"><LucideIcon name="list" /></button>
                         </div>
 
                         {/* Ana Hava Kartı */}
@@ -288,7 +314,7 @@
                                     <h1 className="text-5xl font-black mb-4 drop-shadow-lg">{weather.city}</h1>
                                     
                                     <div className="flex items-center justify-center gap-6 mb-6">
-                                        <LucideIcon name={wInfo.i} size={80} className="text-white drop-shadow-xl" />
+                                        <LucideIcon name={wInfo.i} size={84} className="text-white drop-shadow-xl" />
                                         <div className="text-left">
                                             <span className="text-8xl font-black block leading-none">{weather.temp}°</span>
                                             <span className="text-lg font-bold opacity-80 italic">Hissedilen: {weather.feels}°</span>
@@ -296,55 +322,61 @@
                                     </div>
 
                                     <div className="grid grid-cols-3 gap-2 bg-black/20 p-4 rounded-3xl border border-white/10">
-                                        <div className="flex flex-col"><span className="text-xs opacity-60">Nem</span><span className="font-bold">%{weather.humidity}</span></div>
-                                        <div className="flex flex-col"><span className="text-xs opacity-60">Rüzgar</span><span className="font-bold">{weather.wind} km/s</span></div>
-                                        <div className="flex flex-col"><span className="text-xs opacity-60">UV İndeks</span><span className="font-bold">{weather.uv}</span></div>
+                                        <div className="flex flex-col items-center"><span className="text-[10px] uppercase opacity-60 mb-1">Nem</span><span className="font-bold text-sm">%{weather.humidity}</span></div>
+                                        <div className="flex flex-col items-center"><span className="text-[10px] uppercase opacity-60 mb-1">Rüzgar</span><span className="font-bold text-sm">{weather.wind} km/s</span></div>
+                                        <div className="flex flex-col items-center"><span className="text-[10px] uppercase opacity-60 mb-1">UV İndeks</span><span className="font-bold text-sm">{weather.uv}</span></div>
                                     </div>
 
-                                    <div className="mt-6 p-3 bg-white/10 rounded-2xl text-sm font-bold flex items-center justify-center gap-2">
-                                        <LucideIcon name="info" size={16} className="text-yellow-400"/>
-                                        {wInfo.advice}
+                                    <div className="mt-6 p-4 bg-white/10 rounded-2xl text-xs sm:text-sm font-bold flex items-center justify-center gap-3 border border-white/5">
+                                        <LucideIcon name="info" size={18} className="text-yellow-400 shrink-0"/>
+                                        <span className="leading-tight">{wInfo.advice}</span>
                                     </div>
                                 </>
-                            ) : <div className="p-10 font-black animate-pulse">Yükleniyor...</div>}
+                            ) : <div className="p-10 font-black animate-pulse flex flex-col items-center gap-4"><LucideIcon name="loader-2" className="animate-spin" size={40}/> Veriler Alınıyor...</div>}
                         </div>
 
-                        {/* Saatlik Tahmin (Kral özellik 1) */}
-                        <div className="text-left w-[92%] max-w-[480px] mt-4">
-                            <h3 className="text-sm font-black uppercase tracking-wider mb-2 flex items-center gap-2">
-                                <LucideIcon name="clock" size={16}/> Saatlik Tahmin
+                        {/* Saatlik Tahmin */}
+                        <div className="w-[92%] max-w-[480px] mt-6 px-2">
+                            <h3 className="text-xs font-black uppercase tracking-[0.2em] mb-4 flex items-center gap-2 opacity-90">
+                                <LucideIcon name="clock" size={14}/> 24 Saatlik Akış
                             </h3>
-                        </div>
-                        <div className="hourly-scroll">
-                            {hourly.map((h, i) => (
-                                <div key={i} className="hourly-item">
-                                    <span className="text-xs opacity-60">{h.time}</span>
-                                    <LucideIcon name={h.icon} size={24} className="my-2" />
-                                    <span className="font-bold">{h.temp}°</span>
-                                </div>
-                            ))}
+                            <div className="hourly-scroll">
+                                {hourly.map((h, i) => (
+                                    <div key={i} className="hourly-item">
+                                        <span className="text-[10px] font-bold opacity-60 mb-3">{h.time}</span>
+                                        <LucideIcon name={h.icon} size={28} className="mb-3 text-white" />
+                                        <span className="text-lg font-black">{h.temp}°</span>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
 
                         {/* Alt Butonlar */}
-                        <div className="flex gap-4 my-6">
-                            <button onClick={() => setPanels({...panels, forecast: true})} className="glass-bar w-16 h-16"><LucideIcon name="calendar" /></button>
-                            <button onClick={downloadStory} className="glass-bar w-16 h-16 text-pink-600"><LucideIcon name="instagram" /></button>
-                            <button onClick={() => fetchWeather(selectedCity)} className="glass-bar w-16 h-16 text-indigo-600"><LucideIcon name="refresh-cw" /></button>
+                        <div className="flex gap-5 my-6">
+                            <button onClick={() => setPanels({...panels, forecast: true})} className="glass-bar w-16 h-16" title="Haftalık Tahmin"><LucideIcon name="calendar" size={28}/></button>
+                            <button onClick={downloadStory} className="glass-bar w-16 h-16 text-pink-600" title="Instagram Story Paylaş"><LucideIcon name="instagram" size={28}/></button>
+                            <button onClick={() => fetchWeather(selectedCity)} className="glass-bar w-16 h-16 text-indigo-600" title="Yenile"><LucideIcon name="refresh-cw" size={28}/></button>
                         </div>
                     </div>
 
-                    {/* Yan Panel: Günlük Tahmin */}
-                    <div className={`fixed inset-0 z-50 transition-all ${panels.forecast ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
-                        <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={() => setPanels({...panels, forecast: false})}></div>
-                        <div className={`absolute bottom-0 left-0 right-0 bg-slate-900 p-8 rounded-t-[50px] transition-transform duration-500 ${panels.forecast ? 'translate-y-0' : 'translate-y-full'}`}>
-                            <div className="w-12 h-1 bg-white/20 mx-auto mb-6 rounded-full"></div>
-                            <h2 className="text-2xl font-black mb-6">Haftalık Tahmin</h2>
-                            <div className="space-y-4">
+                    {/* Yan Panel: Haftalık Tahmin */}
+                    <div className={`fixed inset-0 z-[100] transition-all duration-300 ${panels.forecast ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
+                        <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setPanels({...panels, forecast: false})}></div>
+                        <div className={`absolute bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-xl p-8 rounded-t-[40px] border-t border-white/10 transition-transform duration-500 shadow-[0_-20px_50px_rgba(0,0,0,0.5)] ${panels.forecast ? 'translate-y-0' : 'translate-y-full'}`}>
+                            <div className="w-16 h-1.5 bg-white/20 mx-auto mb-8 rounded-full cursor-pointer" onClick={() => setPanels({...panels, forecast: false})}></div>
+                            <div className="flex justify-between items-center mb-8">
+                                <h2 className="text-2xl font-black">Haftalık Tahmin</h2>
+                                <LucideIcon name="calendar-days" className="text-blue-400" size={24}/>
+                            </div>
+                            <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-2 scrollbar-hide">
                                 {forecast.map((d, i) => (
-                                    <div key={i} className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5">
-                                        <span className="font-bold w-12">{d.day}</span>
-                                        <LucideIcon name={d.icon} size={28} className="text-blue-300" />
-                                        <div className="font-black"><span className="text-white">{d.max}°</span> <span className="text-white/40 ml-2">{d.min}°</span></div>
+                                    <div key={i} className="flex items-center justify-between p-5 bg-white/5 rounded-3xl border border-white/5 hover:bg-white/10 transition-colors">
+                                        <span className="font-bold w-16 text-lg">{d.day}</span>
+                                        <LucideIcon name={d.icon} size={32} className="text-blue-200" />
+                                        <div className="font-black text-right min-w-[80px]">
+                                            <span className="text-xl text-white">{d.max}°</span>
+                                            <span className="text-base text-white/40 ml-3">{d.min}°</span>
+                                        </div>
                                     </div>
                                 ))}
                             </div>
@@ -355,19 +387,32 @@
                     <div id="profile-export-container">
                         <div className={`absolute inset-0 ${'bg-'+wInfo.type}`}>
                              {avatar && <div className="absolute inset-0 opacity-40 blur-3xl scale-150" style={{backgroundImage: `url(${avatar})`, backgroundSize:'cover'}}></div>}
-                             <div className="absolute inset-0 bg-black/20"></div>
+                             <div className="absolute inset-0 bg-black/30"></div>
                         </div>
                         <div className="relative z-10 h-full flex flex-col items-center justify-center p-20 text-center">
-                            <h1 className="text-[120px] font-black uppercase mb-10 drop-shadow-2xl">{weather?.city}</h1>
-                            <LucideIcon name={wInfo.i} size={300} className="mb-10 drop-shadow-2xl"/>
-                            <span className="text-[350px] font-black leading-none">{weather?.temp}°</span>
-                            <div className="bg-white/20 backdrop-blur-xl p-10 rounded-[60px] border border-white/30 w-full mt-10">
-                                <p className="text-6xl font-bold uppercase tracking-[10px] mb-6">{wInfo.t}</p>
-                                <p className="text-4xl opacity-80 italic">"{wInfo.advice}"</p>
+                            <div className="mb-10">
+                                <p className="text-4xl font-bold tracking-[0.5em] opacity-80 mb-4 uppercase">HavaDurumuhd</p>
+                                <h1 className="text-[130px] font-black uppercase drop-shadow-2xl leading-tight">{weather?.city}</h1>
                             </div>
-                            <div className="mt-auto pt-20 flex gap-20 text-4xl font-bold opacity-70">
-                                <span>Nem: %{weather?.humidity}</span>
-                                <span>Rüzgar: {weather?.wind} km/s</span>
+                            
+                            <LucideIcon name={wInfo.i} size={320} className="mb-10 drop-shadow-2xl text-white"/>
+                            
+                            <div className="flex flex-col items-center">
+                                <span className="text-[380px] font-black leading-none tracking-tighter drop-shadow-2xl">{weather?.temp}°</span>
+                                <div className="bg-white/15 backdrop-blur-2xl px-12 py-8 rounded-[60px] border border-white/25 w-full mt-8 shadow-2xl">
+                                    <p className="text-7xl font-black uppercase tracking-[12px] mb-4">{wInfo.t}</p>
+                                    <p className="text-4xl font-bold italic opacity-90">"{wInfo.advice}"</p>
+                                </div>
+                            </div>
+
+                            <div className="mt-auto pt-20 flex gap-16 text-4xl font-bold opacity-80">
+                                <div className="flex items-center gap-4"><LucideIcon name="droplets" size={40}/> %{weather?.humidity}</div>
+                                <div className="flex items-center gap-4"><LucideIcon name="wind" size={40}/> {weather?.wind} km/s</div>
+                                <div className="flex items-center gap-4"><LucideIcon name="sun" size={40}/> UV {weather?.uv}</div>
+                            </div>
+                            
+                            <div className="mt-16 text-3xl font-bold tracking-[10px] opacity-60 uppercase">
+                                {new Date().toLocaleDateString('tr-TR', { day:'numeric', month:'long', year:'numeric' })}
                             </div>
                         </div>
                     </div>
