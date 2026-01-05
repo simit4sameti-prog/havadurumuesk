@@ -43,10 +43,17 @@
         .bg-snow { background: linear-gradient(to bottom, #cbd5e1, #f8fafc); }
         .bg-storm { background: linear-gradient(to bottom, #020617, #1e293b); }
 
-        .heavy-rain { position: absolute; background: rgba(255,255,255,0.4); width: 1px; height: 30px; animation: rainFall 0.5s linear infinite; }
+        .heavy-rain { position: absolute; background: rgba(255,255,255,0.6); width: 2px; height: 35px; animation: rainFall 0.6s linear infinite; }
         @keyframes rainFall { to { transform: translateY(110vh); } }
-        .big-snow { position: absolute; background: white; border-radius: 50%; opacity: 0.8; animation: snowFall 5s linear infinite; }
-        @keyframes snowFall { to { transform: translateY(110vh) rotate(360deg); } }
+        
+        .big-snow { position: absolute; background: white; border-radius: 50%; opacity: 0.9; animation: snowFall 4s linear infinite; filter: blur(1px); }
+        @keyframes snowFall { 
+            0% { transform: translateY(-10vh) translateX(0); }
+            100% { transform: translateY(110vh) translateX(20px); } 
+        }
+
+        .flash-effect { position: absolute; inset: 0; background: white; opacity: 0; animation: thunder 5s infinite; }
+        @keyframes thunder { 95% { opacity: 0; } 96% { opacity: 0.4; } 97% { opacity: 0; } 98% { opacity: 0.4; } 99% { opacity: 0; } }
 
         .weather-card {
             position: relative; width: 92%; max-width: 480px;
@@ -64,13 +71,15 @@
 
         .hourly-scroll {
             width: 94%; max-width: 520px; display: flex; gap: 14px;
-            overflow-x: auto; padding: 15px 10px 25px 10px; scrollbar-width: none;
+            overflow-x: auto; padding: 15px 15px 25px 15px; scrollbar-width: none;
             background: rgba(0,0,0,0.15); border-radius: 30px; margin-top: 10px;
+            -webkit-overflow-scrolling: touch;
         }
         .hourly-scroll::-webkit-scrollbar { display: none; }
 
+        /* ÖNEMLİ: flex-shrink-0 kaydırma sorununu çözer */
         .hourly-item {
-            min-width: 95px; background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(12px);
+            min-width: 100px; flex-shrink: 0; background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(12px);
             border-radius: 24px; padding: 18px 12px; display: flex; flex-direction: column;
             align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.1);
         }
@@ -86,31 +95,18 @@
             background: rgba(0,0,0,0.5); backdrop-filter: blur(15px); border-radius: 35px; border: 1px solid rgba(255,255,255,0.1);
         }
 
-        #profile-export-container {
-            position: fixed; top: 0; left: -5000px; width: 1080px; height: 1920px; z-index: -9999; overflow: hidden;
-        }
-
-        .export-preview-box {
-            width: 270px; height: 480px; position: relative; border-radius: 24px;
-            overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.8); background: #111;
-        }
-
-        .sidebar-panel {
-            position: fixed; top: 0; bottom: 0; width: 85%; max-width: 320px;
-            background: rgba(15, 23, 42, 0.98); backdrop-filter: blur(25px); z-index: 100;
-            padding: 2rem 1.5rem; display: flex; flex-direction: column;
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .sidebar-left { left: 0; }
-        .sidebar-left.closed { transform: translateX(-110%); }
-        .sidebar-left.open { transform: translateX(0); }
-
         .custom-select {
-            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
-            color: white; padding: 12px; border-radius: 14px; width: 100%; font-size: 14px; 
-            font-weight: 600; outline: none; transition: all 0.2s;
+            background: #ffffff; border: 2px solid #6366f1;
+            color: #1e293b; padding: 12px; border-radius: 14px; width: 100%; font-size: 15px; 
+            font-weight: 700; outline: none; transition: all 0.2s;
+            appearance: none;
         }
-        .custom-select:focus { border-color: #6366f1; background: rgba(255,255,255,0.15); }
+
+        .avatar-label {
+            font-size: 13px; font-weight: 900; color: #ffffff; text-transform: uppercase;
+            letter-spacing: 0.05em; display: block; margin-bottom: 6px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
 
         .animate-pop { animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         @keyframes pop { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
@@ -144,6 +140,7 @@
                 61: {t:"Yağmur", i:"cloud-rain", type:"rain", advice: "Şemsiyeni mutlaka yanına al!"}, 
                 63: {t:"Sağanak", i:"cloud-rain", type:"rain", advice: "Dışarı çıkarken dikkat et, ıslanma."}, 
                 71: {t:"Kar", i:"snowflake", type:"snow", advice: "Lapa lapa kar yağıyor!"},
+                73: {t:"Yoğun Kar", i:"snowflake", type:"snow", advice: "Dışarı çıkarken sıkı giyin!"},
                 95: {t:"Fırtına", i:"cloud-lightning", type:"storm", advice: "Gök gürültüsüne hazırlıklı ol!"}
             };
             return map[code] || {t:"Bulutlu", i:"cloud", type:"cloud", advice: "Hava değişken olabilir."};
@@ -160,8 +157,9 @@
 
         const BackgroundEffect = ({ type, isDay }) => {
             const elements = useMemo(() => {
-                if (type === 'rain') return Array.from({ length: 60 }).map((_, i) => <div key={i} className="heavy-rain" style={{ left: `${Math.random()*100}%`, animationDuration: `${0.4+Math.random()*0.4}s` }} />);
-                if (type === 'snow') return Array.from({ length: 40 }).map((_, i) => <div key={i} className="big-snow" style={{ left: `${Math.random()*100}%`, width: `${4+Math.random()*8}px`, height: `${4+Math.random()*8}px`, animationDuration: `${4+Math.random()*4}s` }} />);
+                if (type === 'rain') return Array.from({ length: 60 }).map((_, i) => <div key={i} className="heavy-rain" style={{ left: `${Math.random()*100}%`, animationDuration: `${0.4 + Math.random() * 0.4}s`, animationDelay: `${Math.random() * 2}s` }} />);
+                if (type === 'snow') return Array.from({ length: 45 }).map((_, i) => <div key={i} className="big-snow" style={{ left: `${Math.random()*100}%`, width: `${5+Math.random()*10}px`, height: `${5+Math.random()*10}px`, animationDuration: `${3+Math.random()*5}s`, animationDelay: `${Math.random() * 5}s` }} />);
+                if (type === 'storm') return <div className="flash-effect"></div>;
                 return null;
             }, [type]);
             return <div className={`weather-bg-container ${'bg-'+type}`}>{elements}</div>;
@@ -194,60 +192,62 @@
 
             const renderSel = (label, key, opts) => (
                 <div className="mb-4">
-                    <label className="text-[11px] font-extrabold text-indigo-400 uppercase block mb-1.5 tracking-wider">{label}</label>
-                    <select 
-                        className="custom-select" 
-                        value={traits[key]} 
-                        onChange={e => setTraits({...traits, [key]: e.target.value})}
-                    >
-                        {opts.map(o => <option key={o.v} value={o.v}>{o.l}</option>)}
-                    </select>
+                    <label className="avatar-label">{label}</label>
+                    <div className="relative">
+                        <select 
+                            className="custom-select shadow-sm" 
+                            value={traits[key]} 
+                            onChange={e => setTraits({...traits, [key]: e.target.value})}
+                        >
+                            {opts.map(o => <option key={o.v} value={o.v}>{o.l}</option>)}
+                        </select>
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                            <LucideIcon name="chevron-down" size={18} className="text-indigo-600"/>
+                        </div>
+                    </div>
                 </div>
             );
 
             return (
-                <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/95 backdrop-blur-2xl p-4">
-                    <div className="bg-slate-900 border border-white/10 p-8 rounded-[40px] w-full max-w-2xl animate-pop max-h-[90vh] overflow-y-auto">
-                        <div className="flex justify-between items-center mb-8 sticky top-0 bg-slate-900 z-10 pb-4 border-b border-white/5">
+                <div className="fixed inset-0 z-[200] flex items-center justify-center bg-slate-900/95 backdrop-blur-2xl p-4 overflow-y-auto">
+                    <div className="bg-slate-800 border border-white/20 p-6 md:p-10 rounded-[45px] w-full max-w-3xl animate-pop my-auto shadow-2xl relative">
+                        <div className="flex justify-between items-center mb-8 pb-4 border-b border-white/10">
                             <div>
-                                <h2 className="text-2xl font-black flex gap-3 items-center text-white"><LucideIcon name="sparkles" className="text-yellow-400"/> Karakter Tasarla</h2>
-                                <p className="text-xs text-indigo-300/60 font-bold mt-1">Sana en çok benzeyen avatarı oluştur.</p>
+                                <h2 className="text-3xl font-black flex gap-3 items-center text-white"><LucideIcon name="sparkles" className="text-yellow-400" size={32}/> Karakter Editörü</h2>
+                                <p className="text-indigo-300 font-bold mt-2">Sana en çok benzeyen avatarı tasarla.</p>
                             </div>
-                            <button onClick={onClose} className="bg-white/5 p-3 rounded-full hover:bg-white/10 transition-colors"><LucideIcon name="x" size={20}/></button>
+                            <button onClick={onClose} className="bg-white/10 p-4 rounded-full hover:bg-red-500/20 hover:text-red-400 transition-all border border-white/10"><LucideIcon name="x" size={24}/></button>
                         </div>
                         
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8">
-                            <div className="space-y-1">
-                                <h3 className="text-[10px] font-black text-white/30 uppercase mb-4 tracking-[0.2em]">Temel Özellikler</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-2">
+                            <div className="bg-slate-700/30 p-4 rounded-3xl border border-white/5 mb-4">
+                                <h3 className="text-[11px] font-black text-white/40 uppercase mb-4 tracking-[0.2em] flex items-center gap-2"><LucideIcon name="user" size={14}/> Temel</h3>
                                 {renderSel("Cinsiyet", "gender", options.gender)}
                                 {renderSel("Yaş Grubu", "age", options.age)}
                                 {renderSel("Ten Rengi", "skinTone", options.skinTone)}
                                 {renderSel("Ruh Hali", "mood", options.mood)}
-                                {renderSel("Göz Rengi", "eyeColor", options.eyeColor)}
                             </div>
-                            <div className="space-y-1">
-                                <h3 className="text-[10px] font-black text-white/30 uppercase mb-4 tracking-[0.2em]">Saç & Stil</h3>
+                            <div className="bg-slate-700/30 p-4 rounded-3xl border border-white/5 mb-4">
+                                <h3 className="text-[11px] font-black text-white/40 uppercase mb-4 tracking-[0.2em] flex items-center gap-2"><LucideIcon name="scissors" size={14}/> Stil</h3>
                                 {renderSel("Saç Stili", "hairStyle", options.hairStyle)}
                                 {renderSel("Saç Rengi", "hairColor", options.hairColor)}
                                 {renderSel("Sakal/Bıyık", "facialHair", options.facialHair)}
+                                {renderSel("Göz Rengi", "eyeColor", options.eyeColor)}
+                            </div>
+                            <div className="bg-slate-700/30 p-4 rounded-3xl border border-white/5 mb-4">
+                                <h3 className="text-[11px] font-black text-white/40 uppercase mb-4 tracking-[0.2em] flex items-center gap-2"><LucideIcon name="shirt" size={14}/> Ekstralar</h3>
+                                {renderSel("Giyim", "clothing", options.clothing)}
                                 {renderSel("Gözlük", "glasses", options.glasses)}
                                 {renderSel("Aksesuar", "accessory", options.accessory)}
-                            </div>
-                            <div className="md:col-span-2 space-y-1 mt-4 pt-4 border-t border-white/5">
-                                <h3 className="text-[10px] font-black text-white/30 uppercase mb-4 tracking-[0.2em]">Kıyafet & Ortam</h3>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8">
-                                    {renderSel("Giyim Tarzı", "clothing", options.clothing)}
-                                    {renderSel("Kıyafet Rengi", "clothingColor", options.clothingColor)}
-                                    {renderSel("Arka Plan", "background", options.background)}
-                                </div>
+                                {renderSel("Ortam", "background", options.background)}
                             </div>
                         </div>
 
                         <button 
                             onClick={() => { onGenerate(traits); onClose(); }} 
-                            className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 py-5 rounded-[20px] font-black mt-10 shadow-2xl shadow-indigo-500/20 active:scale-[0.98] transition-all text-white tracking-widest uppercase"
+                            className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 py-6 rounded-[24px] font-black mt-6 shadow-2xl shadow-indigo-500/40 active:scale-[0.97] transition-all text-white text-xl tracking-widest uppercase"
                         >
-                            AVATARI SİHRİYLE OLUŞTUR ✨
+                            KARAKTERİ OLUŞTUR ✨
                         </button>
                     </div>
                 </div>
